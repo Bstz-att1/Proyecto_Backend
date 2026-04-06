@@ -1,14 +1,12 @@
 import { Router } from 'express';
+import { getTasks, createTask } from '../controllers/tasks.controller.js';
+
 const router = Router();
 
-// GET /tasks
-router.get('/', (req, res) => {
-  res.send('Aquí se listarán las tareas');
-});
+// GET /tasks → Devuelve un mensaje indicando que se listarán las tareas
+router.get('/', getTasks);
 
-// POST /tasks
-router.post('/', (req, res) => {
-  res.send('Aquí se creará una tarea');
-});
+// POST /tasks → Mensaje indicando que se creará una tarea
+router.post('/', createTask);
 
 export default router;
