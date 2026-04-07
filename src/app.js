@@ -7,10 +7,10 @@ const PORT = 3000;
 
 // Ruta raíz
 app.get('/', (req, res) => {
-  res.send('Bienvenido al sistema de gestión de tareas academicas');
+  res.send('Bienvenido al sistema de gestión académica');
 });
 
-// Rutas
+// Usar rutas
 app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);
 
