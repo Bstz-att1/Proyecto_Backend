@@ -1,64 +1,81 @@
 import { getAllUsers, getUser, addUser, updateUser, patchUser, deleteUser } from '../models/users.model.js';
 
 // Consultar todos los usuarios
-export const getUsers = (req, res) => {
+export const getUsers = async (req, res) => {
   try {
-    const users = getAllUsers();
+    const users = await getAllUsers();
     res.status(200).json(users);
-  } catch {
-    res.status(500).json({ message: 'Error al obtener usuarios' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener usuarios', error: error.message });
   }
 };
 
 // Consultar un usuario específico
-export const getUserById = (req, res) => {
+export const getUserById = async (req, res) => {
   try {
-    const user = getUser(req.params.id);
-    res.status(200).json(user);
-  } catch {
-    res.status(500).json({ message: 'Error al obtener usuario' });
-  }
-};
-
-// Registrar un nuevo usuario
-export const createUser = (req, res) => {
-  try {
-    if (!req.body.nombre) {
-      return res.status(400).json({ message: 'El nombre es obligatorio' });
+    const user = await getUser(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: `Usuario con id ${req.params.id} no encontrado` });
     }
-    const newUser = addUser({ nombre: req.body.nombre });
-    res.status(201).json({ message: 'Usuario creado', user: newUser });
-  } catch {
-    res.status(500).json({ message: 'Error al crear usuario' });
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener usuario', error: error.message });
   }
 };
 
-// Actualizar información de un usuario
-export const updateUserById = (req, res) => {
+// Crear un nuevo usuario
+export const createUser = async (req, res) => {
   try {
-    const updated = updateUser(req.params.id, req.body);
-    res.status(200).json({ message: 'Usuario actualizado', user: updated });
-  } catch {
-    res.status(500).json({ message: 'Error al actualizar usuario' });
+    const { name, email, document, role } = req.body;
+
+    if (!name || !email || !document || !role) {
+      return res.status(400).json({ message: 'Todos los campos son obligatorios: name, email, document, role' });
+    }
+
+    const newUser = await addUser({ name, email, document, role });
+    res.status(201).json({ message: 'Usuario creado', user: newUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al crear usuario', error: error.message });
   }
 };
 
-// PATCH → actualización parcial
+// Actualizar completamente un usuario
+export const updateUserById = async (req, res) => {
+  try {
+    const updated = await updateUser(req.params.id, req.body);
+    if (!updated) {
+      return res.status(404).json({ message: `Usuario con id ${req.params.id} no encontrado` });
+    }
+    res.status(200).json({ message: 'Usuario actualizado', user: updated });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar usuario', error: error.message });
+  }
+};
+
+// Actualización parcial de un usuario
 export const patchUserById = async (req, res) => {
   try {
     const patched = await patchUser(req.params.id, req.body);
+    if (!patched) {
+      return res.status(404).json({ message: `Usuario con id ${req.params.id} no encontrado` });
+    }
     res.status(200).json({ message: 'Usuario actualizado parcialmente', user: patched });
-  } catch {
-    res.status(500).json({ message: 'Error al actualizar parcialmente el usuario' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar parcialmente el usuario', error: error.message });
   }
 };
 
 // Eliminar un usuario
-export const deleteUserById = (req, res) => {
+export const deleteUserById = async (req, res) => {
   try {
-    const deleted = deleteUser(req.params.id);
-    res.status(200).json({ message: 'Usuario eliminado', user: deleted });
-  } catch {
-    res.status(500).json({ message: 'Error al eliminar usuario' });
+    const deleted = await deleteUser(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: `Usuario con id ${req.params.id} no encontrado` });
+    }
+
+    res.status(200).json(deleted);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al eliminar usuario', error: error.message });
   }
 };
