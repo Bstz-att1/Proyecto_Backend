@@ -5,9 +5,12 @@ import taskRoutes from './routes/tasks.routes.js';
 const app = express();
 const PORT = 3000;
 
+// Middleware para parsear JSON
+app.use(express.json());
+
 // Ruta raíz
 app.get('/', (req, res) => {
-  res.send('Bienvenido al sistema de gestión académica');
+    res.send('Bienvenido al sistema de gestión académica');
 });
 
 // Usar rutas
@@ -15,5 +18,5 @@ app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
