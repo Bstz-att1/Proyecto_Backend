@@ -1,14 +1,31 @@
 import { Router } from 'express';
+import {
+  getUsers,
+  getUserById,
+  createUser,
+  updateUserById,
+  patchUserById,
+  deleteUserById
+} from '../controllers/users.controller.js';
+
 const router = Router();
 
-// GET /users
-router.get('/', (req, res) => {
-  res.send('Aquí se listarán los usuarios');
-});
+// Consultar todos los usuarios
+router.get('/', getUsers);
 
-// POST /users
-router.post('/', (req, res) => {
-  res.send('Aquí se creará un usuario');
-});
+// Consultar un usuario específico
+router.get('/:id', getUserById);
+
+// Registrar un nuevo usuario
+router.post('/', createUser);
+
+// Actualizar información de un usuario
+router.put('/:id', updateUserById);
+
+// Actualizar informacion de un usuario parcialmente
+router.patch('/:id', patchUserById);
+
+// Eliminar un usuario
+router.delete('/:id', deleteUserById);
 
 export default router;
