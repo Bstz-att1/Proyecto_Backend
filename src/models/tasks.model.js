@@ -1,12 +1,12 @@
 import pool from '../config/db.js';
 
-// Registrar una nueva tarea
+// Crear una nueva tarea
 export const addTask = async (task) => {
   const [result] = await pool.query(
     'INSERT INTO tasks (user_id, title, description, status, created_by) VALUES (?, ?, ?, ?, ?)',
     [task.user_id, task.title, task.description, task.status, task.created_by]
   );
-  return { 
+  return {
     id: result.insertId,
     user_id: task.user_id,
     title: task.title,
@@ -32,30 +32,25 @@ export const getAllTasks = async () => {
 // Consultar una tarea específica
 export const getTask = async (id) => {
   const [rows] = await pool.query('SELECT * FROM tasks WHERE id = ?', [id]);
-  if (rows.length === 0) return null;
-  return {
-    id: rows[0].id,
-    user_id: rows[0].user_id,
-    title: rows[0].title,
-    description: rows[0].description,
-    status: rows[0].status,
-    created_by: rows[0].created_by
-  };
+  if (rows.length === 0) return null; // <- devuelve null si no existe
+  return rows[0];
 };
 
 // Actualizar completamente una tarea
 export const updateTask = async (id, data) => {
-  await pool.query(
+  const [result] = await pool.query(
     'UPDATE tasks SET user_id = ?, title = ?, description = ?, status = ?, created_by = ? WHERE id = ?',
     [data.user_id, data.title, data.description, data.status, data.created_by, id]
   );
+
+  if (result.affectedRows === 0) return null; // <- devuelve null si no existe
   return { id, ...data };
 };
 
-// Actualizar parcialmente una tarea
+// Actualización parcial de una tarea
 export const patchTask = async (id, data) => {
   const tarea = await getTask(id);
-  if (!tarea) return null;
+  if (!tarea) return null; // <- devuelve null si no existe
 
   const updated = {
     user_id: data.user_id || tarea.user_id,
@@ -65,15 +60,23 @@ export const patchTask = async (id, data) => {
     created_by: data.created_by || tarea.created_by
   };
 
-  await pool.query(
+  const [result] = await pool.query(
     'UPDATE tasks SET user_id = ?, title = ?, description = ?, status = ?, created_by = ? WHERE id = ?',
     [updated.user_id, updated.title, updated.description, updated.status, updated.created_by, id]
   );
+
+  if (result.affectedRows === 0) return null; // <- seguridad extra
   return { id, ...updated };
 };
 
 // Eliminar una tarea
 export const deleteTask = async (id) => {
-  await pool.query('DELETE FROM tasks WHERE id = ?', [id]);
+  const [result] = await pool.query('DELETE FROM tasks WHERE id = ?', [id]);
+
+  if (result.affectedRows === 0) {
+    // No se eliminó nada porque no existía la tarea
+    return null;
+  }
+
   return { message: `Tarea con id ${id} eliminada correctamente` };
 };
