@@ -77,3 +77,48 @@
 - `v1.2.0` → CRUD completo con soporte para PATCH en usuarios y tareas.
 - `v1.3.1` → Manejo uniforme de errores 404, correcciones en modelos y controladores, servidor más robusto y respuestas consistentes.  
 - `v1.4.0` → Middleware global de errores, controladores y modelos ajustados, servidor más robusto y respuestas consistentes.  
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+# Changelog
+
+## [v1.4.1] - 2026-04-08
+
+### Refactor
+- **tasks.model.js**
+  - Normalización de objetos devueltos en todas las operaciones CRUD.
+  - Inclusión de flags `created`, `updated`, `deleted` para enriquecer las respuestas en controladores.
+  - Uso de `??` en `patchTask` para soportar valores falsy (`0`, `""`).
+  - Consistencia en retornos: todos los métodos devuelven datos o `null`.
+
+- **users.model.js**
+  - Ajuste similar al modelo de tareas para mantener consistencia.
+  - Flags `created`, `updated`, `deleted` añadidos en operaciones CRUD.
+  - Uso de `??` en `patchUser` para soportar valores falsy.
+  - Eliminación de mensajes directos en el modelo, delegando al controlador.
+
+### Controllers
+- **tasks.controller.js**
+  - Refactor completo para usar `catchAsync` y `successResponse`.
+  - Implementación de `createError` para errores operacionales con detalles.
+  - Mensajes de respuesta más completos y descriptivos.
+  - Centralización de errores en el middleware global.
+
+- **users.controller.js**
+  - Refactor completo para alinearse con el controlador de tareas.
+  - Uso de `catchAsync`, `successResponse` y `createError`.
+  - Validaciones de campos obligatorios con mensajes claros.
+  - Respuestas enriquecidas y consistentes en todos los endpoints.
+
+### Middleware
+- Integración total con `catchAsync` y `globalErrorHandler`.
+- Eliminación de `try/catch` repetitivos en controladores.
+- Flujo de errores uniforme en toda la API.
+
+### Version
+- `v1.0.0` → Inicio del backend con servidor básico y rutas directas.  
+- `v1.1.0` → Separación de rutas y creación de controladores.  
+- `v1.2.0` → CRUD completo con soporte para PATCH en usuarios y tareas.
+- `v1.3.1` → Manejo uniforme de errores 404, correcciones en modelos y controladores, servidor más robusto y respuestas consistentes.  
+- `v1.4.0` → Middleware global de errores, controladores y modelos ajustados, servidor más robusto y respuestas consistentes.  
+- `v1.4.1` → Refactor de modelos y controladores de usuarios y tareas.  
