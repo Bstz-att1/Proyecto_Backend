@@ -1,79 +1,88 @@
 import { getAllTasks, getTask, addTask, updateTask, patchTask, deleteTask } from '../models/tasks.model.js';
+import { successResponse } from '../utils/response.handler.js';
+import { catchAsync } from '../utils/catchAsync.js';
+
+// Función auxiliar para crear errores operacionales con detalles
+const createError = (message, statusCode, details = []) => {
+    const err = new Error(message);
+    err.statusCode = statusCode;
+    err.isOperational = true;
+    err.errors = details.length ? details : [message];
+    return err;
+};
 
 // Consultar todas las tareas
-export const getTasks = async (req, res) => {
-  try {
+export const getTasks = catchAsync(async (req, res, next) => {
     const tasks = await getAllTasks();
-    res.status(200).json(tasks);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener tareas', error: error.message });
-  }
-};
+    return successResponse(res, 200, "Listado de tareas obtenido exitosamente", tasks);
+});
 
 // Consultar una tarea específica
-export const getTaskById = async (req, res) => {
-  try {
-    const task = await getTask(req.params.id);
+export const getTaskById = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const task = await getTask(id);
+
     if (!task) {
-      return res.status(404).json({ message: `Tarea con id ${req.params.id} no encontrada` });
+        return next(createError("Tarea no encontrada", 404, [`No se encontró ninguna tarea con el ID ${id}`]));
     }
-    res.status(200).json(task);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener tarea', error: error.message });
-  }
-};
+
+    return successResponse(res, 200, `Tarea con ID ${id} encontrada exitosamente`, task);
+});
 
 // Registrar una nueva tarea
-export const createTask = async (req, res) => {
-  try {
+export const createTask = catchAsync(async (req, res, next) => {
     const { user_id, title, description, status, created_by } = req.body;
 
     if (!user_id || !title || !description || !status || !created_by) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios: user_id, title, description, status, created_by' });
+        return next(createError(
+            "Campos obligatorios faltantes",
+            400,
+            ["Debes enviar: user_id, title, description, status, created_by"]
+        ));
     }
 
     const newTask = await addTask({ user_id, title, description, status, created_by });
-    res.status(201).json({ message: 'Tarea creada', task: newTask });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al crear tarea', error: error.message });
-  }
-};
+    return successResponse(res, 201, "Tarea creada exitosamente", newTask);
+});
 
 // Actualizar información de una tarea (PUT)
-export const updateTaskById = async (req, res) => {
-  try {
-    const updated = await updateTask(req.params.id, req.body);
+export const updateTaskById = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const updated = await updateTask(id, req.body);
+
     if (!updated) {
-      return res.status(404).json({ message: `Tarea con id ${req.params.id} no encontrada` });
+        return next(createError("Error al actualizar la tarea", 404, [`No se encontró la tarea con el ID ${id}`]));
     }
-    res.status(200).json({ message: 'Tarea actualizada', task: updated });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar tarea', error: error.message });
-  }
-};
+
+    return successResponse(res, 200, `Tarea con ID ${id} actualizada exitosamente (PUT)`, updated);
+});
 
 // Actualización parcial de una tarea (PATCH)
-export const patchTaskById = async (req, res) => {
-  try {
-    const patched = await patchTask(req.params.id, req.body);
-    if (!patched) {
-      return res.status(404).json({ message: `Tarea con id ${req.params.id} no encontrada` });
+export const patchTaskById = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const taskData = req.body;
+
+    if (Object.keys(taskData).length === 0) {
+        return next(createError("Error al editar tarea", 400, ["Debes enviar al menos un campo para actualizar"]));
     }
-    res.status(200).json({ message: 'Tarea actualizada parcialmente', task: patched });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar parcialmente la tarea', error: error.message });
-  }
-};
+
+    const patched = await patchTask(id, taskData);
+
+    if (!patched) {
+        return next(createError("Tarea no encontrada", 404, [`No se encontró la tarea con el ID ${id}`]));
+    }
+
+    return successResponse(res, 200, `Tarea con ID ${id} actualizada exitosamente (PATCH)`, patched);
+});
 
 // Eliminar una tarea
-export const deleteTaskById = async (req, res) => {
-  try {
-    const deleted = await deleteTask(req.params.id);
+export const deleteTaskById = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const deleted = await deleteTask(id);
+
     if (!deleted) {
-      return res.status(404).json({ message: `Tarea con id ${req.params.id} no encontrada` });
+        return next(createError("Error al eliminar la tarea", 404, [`No se encontró la tarea con el ID ${id}`]));
     }
-    res.status(200).json(deleted);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar tarea', error: error.message });
-  }
-};
+
+    return successResponse(res, 200, `Tarea con ID ${id} eliminada exitosamente`, deleted);
+});

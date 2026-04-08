@@ -1,81 +1,88 @@
 import { getAllUsers, getUser, addUser, updateUser, patchUser, deleteUser } from '../models/users.model.js';
+import { successResponse } from '../utils/response.handler.js';
+import { catchAsync } from '../utils/catchAsync.js';
+
+// Función auxiliar para crear errores operacionales con detalles
+const createError = (message, statusCode, details = []) => {
+    const err = new Error(message);
+    err.statusCode = statusCode;
+    err.isOperational = true;
+    err.errors = details.length ? details : [message];
+    return err;
+};
 
 // Consultar todos los usuarios
-export const getUsers = async (req, res) => {
-  try {
+export const getUsers = catchAsync(async (req, res, next) => {
     const users = await getAllUsers();
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener usuarios', error: error.message });
-  }
-};
+    return successResponse(res, 200, "Listado de usuarios obtenido exitosamente", users);
+});
 
 // Consultar un usuario específico
-export const getUserById = async (req, res) => {
-  try {
-    const user = await getUser(req.params.id);
+export const getUserById = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const user = await getUser(id);
+
     if (!user) {
-      return res.status(404).json({ message: `Usuario con id ${req.params.id} no encontrado` });
+        return next(createError("Usuario no encontrado", 404, [`No se encontró ningún usuario con el ID ${id}`]));
     }
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener usuario', error: error.message });
-  }
-};
+
+    return successResponse(res, 200, `Usuario con ID ${id} encontrado exitosamente`, user);
+});
 
 // Crear un nuevo usuario
-export const createUser = async (req, res) => {
-  try {
+export const createUser = catchAsync(async (req, res, next) => {
     const { name, email, document, role } = req.body;
 
     if (!name || !email || !document || !role) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios: name, email, document, role' });
+        return next(createError(
+            "Campos obligatorios faltantes",
+            400,
+            ["Debes enviar: name, email, document, role"]
+        ));
     }
 
     const newUser = await addUser({ name, email, document, role });
-    res.status(201).json({ message: 'Usuario creado', user: newUser });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al crear usuario', error: error.message });
-  }
-};
+    return successResponse(res, 201, "Usuario creado exitosamente", newUser);
+});
 
-// Actualizar completamente un usuario
-export const updateUserById = async (req, res) => {
-  try {
-    const updated = await updateUser(req.params.id, req.body);
+// Actualizar completamente un usuario (PUT)
+export const updateUserById = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const updated = await updateUser(id, req.body);
+
     if (!updated) {
-      return res.status(404).json({ message: `Usuario con id ${req.params.id} no encontrado` });
+        return next(createError("Error al actualizar usuario", 404, [`No se encontró el usuario con el ID ${id}`]));
     }
-    res.status(200).json({ message: 'Usuario actualizado', user: updated });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar usuario', error: error.message });
-  }
-};
 
-// Actualización parcial de un usuario
-export const patchUserById = async (req, res) => {
-  try {
-    const patched = await patchUser(req.params.id, req.body);
-    if (!patched) {
-      return res.status(404).json({ message: `Usuario con id ${req.params.id} no encontrado` });
+    return successResponse(res, 200, `Usuario con ID ${id} actualizado exitosamente (PUT)`, updated);
+});
+
+// Actualización parcial de un usuario (PATCH)
+export const patchUserById = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const userData = req.body;
+
+    if (Object.keys(userData).length === 0) {
+        return next(createError("Error al editar usuario", 400, ["Debes enviar al menos un campo para actualizar"]));
     }
-    res.status(200).json({ message: 'Usuario actualizado parcialmente', user: patched });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar parcialmente el usuario', error: error.message });
-  }
-};
+
+    const patched = await patchUser(id, userData);
+
+    if (!patched) {
+        return next(createError("Usuario no encontrado", 404, [`No se encontró el usuario con el ID ${id}`]));
+    }
+
+    return successResponse(res, 200, `Usuario con ID ${id} actualizado exitosamente (PATCH)`, patched);
+});
 
 // Eliminar un usuario
-export const deleteUserById = async (req, res) => {
-  try {
-    const deleted = await deleteUser(req.params.id);
+export const deleteUserById = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const deleted = await deleteUser(id);
 
     if (!deleted) {
-      return res.status(404).json({ message: `Usuario con id ${req.params.id} no encontrado` });
+        return next(createError("Error al eliminar usuario", 404, [`No se encontró el usuario con el ID ${id}`]));
     }
 
-    res.status(200).json(deleted);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar usuario', error: error.message });
-  }
-};
+    return successResponse(res, 200, `Usuario con ID ${id} eliminado exitosamente`, deleted);
+});
