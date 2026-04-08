@@ -6,12 +6,14 @@ export const addUser = async (user) => {
     'INSERT INTO users (name, email, document, role) VALUES (?, ?, ?, ?)',
     [user.name, user.email, user.document, user.role]
   );
+
   return { 
     id: result.insertId,
     name: user.name,
     email: user.email,
     document: user.document,
-    role: user.role
+    role: user.role,
+    created: true
   };
 };
 
@@ -30,31 +32,31 @@ export const getAllUsers = async () => {
 // Consultar un usuario específico
 export const getUser = async (id) => {
   const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
-  if (rows.length === 0) return null; // <- devuelve null si no existe
-  return rows[0];
+  return rows.length > 0 ? rows[0] : null;
 };
 
-// Actualizar completamente un usuario
+// Actualizar completamente un usuario (PUT)
 export const updateUser = async (id, data) => {
   const [result] = await pool.query(
     'UPDATE users SET name = ?, email = ?, document = ?, role = ? WHERE id = ?',
     [data.name, data.email, data.document, data.role, id]
   );
 
-  if (result.affectedRows === 0) return null; // <- devuelve null si no existe
-  return { id, ...data };
+  return result.affectedRows > 0
+    ? { id, ...data, updated: true }
+    : null;
 };
 
-// Actualizar parcialmente un usuario
+// Actualizar parcialmente un usuario (PATCH)
 export const patchUser = async (id, data) => {
   const usuario = await getUser(id);
-  if (!usuario) return null; // <- devuelve null si no existe
+  if (!usuario) return null;
 
   const updated = {
-    name: data.name || usuario.name,
-    email: data.email || usuario.email,
-    document: data.document || usuario.document,
-    role: data.role || usuario.role
+    name: data.name ?? usuario.name,
+    email: data.email ?? usuario.email,
+    document: data.document ?? usuario.document,
+    role: data.role ?? usuario.role
   };
 
   const [result] = await pool.query(
@@ -62,18 +64,15 @@ export const patchUser = async (id, data) => {
     [updated.name, updated.email, updated.document, updated.role, id]
   );
 
-  if (result.affectedRows === 0) return null; // <- seguridad extra
-  return { id, ...updated };
+  return result.affectedRows > 0
+    ? { id, ...updated, updated: true }
+    : null;
 };
 
 // Eliminar un usuario
 export const deleteUser = async (id) => {
   const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
-
-  if (result.affectedRows === 0) {
-    // No se eliminó nada porque no existía el usuario
-    return null;
-  }
-
-  return { message: `Usuario con id ${id} eliminado correctamente` };
+  return result.affectedRows > 0
+    ? { id, deleted: true }
+    : null;
 };
