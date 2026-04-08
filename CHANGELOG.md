@@ -27,10 +27,6 @@
 
 ----------------------------------------------------------------------------------------------------------------------------
 
-
-
-# Changelog
-
 ## [v1.3.1] - 2026-04-07
 ### Added
 - Manejo uniforme de errores **404** en usuarios y tareas:
@@ -55,3 +51,29 @@
 - `v1.1.0` → Separación de rutas y creación de controladores.  
 - `v1.2.0` → CRUD completo con soporte para PATCH en usuarios y tareas.  
 - `v1.3.1` → Manejo uniforme de errores 404, correcciones en modelos y controladores, servidor más robusto y respuestas consistentes.  
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.4.0] - 2026-04-07
+### Added
+- Implementación de **middleware global de errores** (`globalErrorHandler`) para centralizar el manejo de fallos en toda la API.
+- Integración de utilidades `successResponse` y `errorResponse` para estandarizar las respuestas de éxito y error.
+- Configuración de **CORS** y `express.urlencoded` en `app.js` para mejorar compatibilidad con clientes frontend y formularios.
+- Documentación más descriptiva en controladores para cada operación.
+
+### Changed
+- Controladores ajustados para usar `next(error)` en casos de fallo, delegando la respuesta al middleware global.
+- Modelos actualizados para devolver `null` cuando el recurso no existe, en lugar de simular datos.
+- Flujo de errores unificado en todos los endpoints, garantizando consistencia entre módulos.
+- Estructura de mensajes de respuesta mejorada para pruebas en Postman y depuración.
+
+### Fixed
+- Corrección de respuestas incorrectas en operaciones PUT/PATCH/DELETE cuando el recurso no existía (antes devolvían 200 o mensajes genéricos).
+- Ajustes en los modelos para reflejar fielmente el estado de la base de datos y evitar resultados inexistentes.
+
+### Version
+- `v1.0.0` → Inicio del backend con servidor básico y rutas directas.  
+- `v1.1.0` → Separación de rutas y creación de controladores.  
+- `v1.2.0` → CRUD completo con soporte para PATCH en usuarios y tareas.
+- `v1.3.1` → Manejo uniforme de errores 404, correcciones en modelos y controladores, servidor más robusto y respuestas consistentes.  
+- `v1.4.0` → Middleware global de errores, controladores y modelos ajustados, servidor más robusto y respuestas consistentes.  
