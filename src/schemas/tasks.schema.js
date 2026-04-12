@@ -26,14 +26,16 @@ export const taskSchema = z.object({
       required_error: "El estado es obligatorio",
       invalid_type_error: "El estado debe ser un texto",
     })
-    .refine((val) => ["pendiente", "en_progreso", "completada"].includes(val), {
-      message: "Estado inválido: debe ser pendiente, en_progreso o completada",
+    .refine((val) => ["pendiente", "en progreso", "completada"].includes(val), {
+      message: "Estado inválido: debe ser pendiente, en progreso o completada",
     }),
 
   created_by: z
     .string({
-      required_error: "El campo creado por es obligatorio",
-      invalid_type_error: "El campo creado por debe ser un texto",
+      required_error: "El rol es obligatorio",
+      invalid_type_error: "El rol debe ser un texto",
     })
-    .min(3, "El campo creado por debe tener al menos 3 caracteres"),
+    .refine((val) => ["admin", "user"].includes(val), {
+      message: "Creador invalido: debe ser admin o user",
+    }),
 });
