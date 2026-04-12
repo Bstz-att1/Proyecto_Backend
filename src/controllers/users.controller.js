@@ -46,6 +46,10 @@ export const patchUserById = catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const patched = await patchUser(id, req.body);
 
+    if (Object.keys(userData).length === 0) {
+        return next(buildError("Error al editar usuario", 400, ["Debes enviar al menos un campo para actualizar"]));
+    }
+    
     if (!patched) {
         return next(buildError("Usuario no encontrado", 404, [`No se encontró el usuario con el ID ${id}`]));
     }
