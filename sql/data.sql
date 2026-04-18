@@ -1,6 +1,7 @@
 -- Insert de usuarios: 
 INSERT INTO users (name, email, document, role) VALUES
 ('Dario Herrera', 'dario.herrera@gmail.com', '1001', 'admin'),
+('Jhon Bueno', 'jhon.bueno@gmail.com', '2222', 'admin'),
 ('María García', 'maria.garcia@mail.com', '1002', 'user'),
 ('Carlos Rodríguez', 'carlos.rodriguez@mail.com', '1003', 'user'),
 ('Ana Martínez', 'ana.martinez@mail.com', '1004', 'user'),
