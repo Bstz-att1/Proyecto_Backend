@@ -7,13 +7,30 @@ export const addTask = async (task) => {
     [task.user_id, task.title, task.description, task.status, task.created_by]
   );
 
+  const [rows] = await pool.query('SELECT * FROM tasks WHERE id = ?', [result.insertId]);
+  const row = rows[0];
+
+  if (!row) {
+    return {
+      id: result.insertId,
+      user_id: task.user_id,
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      created_by: task.created_by,
+      created: true
+    };
+  }
+
   return {
-    id: result.insertId,
-    user_id: task.user_id,
-    title: task.title,
-    description: task.description,
-    status: task.status,
-    created_by: task.created_by,
+    id: row.id,
+    user_id: row.user_id,
+    title: row.title,
+    description: row.description,
+    status: row.status,
+    created_by: row.created_by,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
     created: true
   };
 };
@@ -27,7 +44,9 @@ export const getAllTasks = async () => {
     title: row.title,
     description: row.description,
     status: row.status,
-    created_by: row.created_by
+    created_by: row.created_by,
+    created_at: row.created_at,
+    updated_at: row.updated_at
   }));
 };
 
@@ -44,9 +63,22 @@ export const updateTask = async (id, data) => {
     [data.user_id, data.title, data.description, data.status, data.created_by, id]
   );
 
-  return result.affectedRows > 0
-    ? { id, ...data, updated: true }
-    : null;
+  if (result.affectedRows <= 0) return null;
+
+  const [rows] = await pool.query('SELECT * FROM tasks WHERE id = ?', [id]);
+  const row = rows[0];
+
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    title: row.title,
+    description: row.description,
+    status: row.status,
+    created_by: row.created_by,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    updated: true
+  };
 };
 
 // Actualización parcial de una tarea (PATCH)
@@ -67,9 +99,22 @@ export const patchTask = async (id, data) => {
     [updated.user_id, updated.title, updated.description, updated.status, updated.created_by, id]
   );
 
-  return result.affectedRows > 0
-    ? { id, ...updated, updated: true }
-    : null;
+  if (result.affectedRows <= 0) return null;
+
+  const [rows] = await pool.query('SELECT * FROM tasks WHERE id = ?', [id]);
+  const row = rows[0];
+
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    title: row.title,
+    description: row.description,
+    status: row.status,
+    created_by: row.created_by,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    updated: true
+  };
 };
 
 // Eliminar una tarea
