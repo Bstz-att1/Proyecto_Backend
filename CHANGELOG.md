@@ -1,5 +1,6 @@
 # Changelog
 
+
 ## [v1.2.0] - 2026-04-06
 ### Added
 - Implementación de **CRUD completo** en usuarios y tareas:
@@ -80,8 +81,6 @@
 
 -----------------------------------------------------------------------------------------------------------------------------
 
-# Changelog
-
 ## [v1.4.1] - 2026-04-08
 
 ### Refactor
@@ -149,3 +148,36 @@
 - `v1.4.0` → Middleware global de errores, controladores y modelos ajustados, servidor más robusto y respuestas consistentes.  
 - `v1.4.1` → Refactor de modelos y controladores de usuarios y tareas.
 - `v1.4.2` → Ampliación y normalización de datos semilla en `sql/data.sql` con 5 tareas por usuario y contenido descriptivo coherente.  
+
+
+## [v1.4.3] - 2026-04-18
+
+### Refactor
+- **Modelos de backend normalizados** para mantener respuestas CRUD más consistentes en `tasks.model.js` y `users.model.js`.
+- Se estandarizó el uso de banderas de operación:
+  - `created: true` en creación.
+  - `updated: true` en actualización total/parcial.
+  - `deleted: true` en eliminación.
+- Se reforzó la lógica de actualización parcial (`PATCH`) mediante el operador `??` para preservar valores válidos falsy (`0`, `""`, `false`) cuando aplique.
+
+### Changed
+- **tasks.model.js**
+  - `addTask` ahora prioriza retorno desde base de datos (`SELECT` posterior al `INSERT`) e incluye metadatos (`created_at`, `updated_at`) cuando están disponibles.
+  - `getAllTasks`, `updateTask` y `patchTask` devuelven estructuras homogéneas con campos completos de tarea.
+  - `deleteTask` mantiene contrato explícito de eliminación con `{ id, deleted: true }` o `null` si no existe.
+  
+### Notes
+- Esta versión documenta ajustes internos de consistencia en modelos y no introduce cambios de rutas.
+- El objetivo principal fue mejorar trazabilidad, legibilidad y estabilidad del flujo de datos entre modelo y controlador.
+
+### Version
+- `v1.0.0` → Inicio del backend con servidor básico y rutas directas.  
+- `v1.1.0` → Separación de rutas y creación de controladores.  
+- `v1.2.0` → CRUD completo con soporte para PATCH en usuarios y tareas.
+- `v1.3.1` → Manejo uniforme de errores 404, correcciones en modelos y controladores, servidor más robusto y respuestas consistentes.  
+- `v1.4.0` → Middleware global de errores, controladores y modelos ajustados, servidor más robusto y respuestas consistentes.  
+- `v1.4.1` → Refactor de modelos y controladores de usuarios y tareas.
+- `v1.4.2` → Ampliación y normalización de datos semilla en `sql/data.sql` con 5 tareas por usuario y contenido descriptivo coherente.
+- `v1.4.3` → Normalización de respuestas en modelos de backend y mejoras de consistencia en operaciones CRUD/PATCH.
+
+-----------------------------------------------------------------------------------------------------------------------------
