@@ -122,3 +122,30 @@
 - `v1.3.1` → Manejo uniforme de errores 404, correcciones en modelos y controladores, servidor más robusto y respuestas consistentes.  
 - `v1.4.0` → Middleware global de errores, controladores y modelos ajustados, servidor más robusto y respuestas consistentes.  
 - `v1.4.1` → Refactor de modelos y controladores de usuarios y tareas.  
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.4.2] - 2026-04-18
+### Changed
+- Actualización de datos semilla en `sql/data.sql` para fortalecer pruebas funcionales:
+  - Se ampliaron los usuarios de prueba hasta completar **20 registros**.
+  - Se consolidaron tareas para garantizar **5 tareas por cada usuario** creado.
+- Se ajustaron títulos y descripciones de tareas para mantener coherencia con el estilo funcional usado en ejemplos iniciales:
+  - Autenticación, dashboard, sprint, validaciones, reportes, rendimiento, documentación, QA y accesibilidad.
+- Se conservaron columnas y estructura SQL existentes:
+  - `tasks(user_id, title, description, status, created_by)`
+  - Estados válidos: `pendiente`, `en progreso`, `completada`.
+  - Roles en `created_by`: `admin`, `user`.
+
+### Notes
+- No se modificó el esquema de base de datos, únicamente el contenido semilla.
+- La actualización facilita validaciones de frontend/backend con mayor volumen y casos más realistas.
+
+### Version
+- `v1.0.0` → Inicio del backend con servidor básico y rutas directas.  
+- `v1.1.0` → Separación de rutas y creación de controladores.  
+- `v1.2.0` → CRUD completo con soporte para PATCH en usuarios y tareas.
+- `v1.3.1` → Manejo uniforme de errores 404, correcciones en modelos y controladores, servidor más robusto y respuestas consistentes.  
+- `v1.4.0` → Middleware global de errores, controladores y modelos ajustados, servidor más robusto y respuestas consistentes.  
+- `v1.4.1` → Refactor de modelos y controladores de usuarios y tareas.
+- `v1.4.2` → Ampliación y normalización de datos semilla en `sql/data.sql` con 5 tareas por usuario y contenido descriptivo coherente.  
