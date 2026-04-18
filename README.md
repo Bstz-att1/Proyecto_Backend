@@ -64,39 +64,39 @@ Cliente → Routes → Controllers → Models → DB (MySQL) → Middleware (err
 
 
 ## 📁 Estructura del Proyecto
-```
-BACKEND/
-├── node_modules/              # 📦 Dependencias instaladas
-├── sql/                       # 🗄️ Scripts SQL para base de datos
+```text
+Backend/
+├── .gitignore
+├── CHANGELOG.md
+├── package-lock.json
+├── package.json
+├── README.md
+├── sql/
 │   ├── data.sql
 │   ├── database.sql
 │   └── task_manager.sql
-├── src/                       # 💻 Código fuente principal
-│   ├── app.js                 # 🚀 Servidor Express (entrypoint)
-│   ├── config/                # ⚙️ Configuración
-│   │   └── db.js              # Conexión a MySQL
-│   ├── controllers/           # 👨‍💻 Lógica de negocio
-│   │   ├── tasks.controller.js
-│   │   └── users.controller.js
-│   ├── middlewares/           # 🛡️ Middleware global
-│   │   └── error.middleware.js
-│   ├── models/                # 🗄️ Acceso a datos
-│   │   ├── tasks.model.js
-│   │   └── users.model.js
-│   ├── routes/                # 📍 Rutas API
-│   │   ├── tasks.routes.js
-│   │   └── users.routes.js
-│   └── utils/                 # 🛠️ Utilidades
-│       ├── catchAsync.js
-│       └── response.handler.js
-├── .env                       # 🔑 Variables de entorno
-├── .env.example               # 📑 Ejemplo de configuración
-├── .gitignore                 # 🚫 Archivos ignorados por Git
-├── CHANGELOG.md               # 📝 Historial de versiones
-├── package.json               # 📦 Configuración del proyecto
-├── package-lock.json
-└── README.md                  # 📚 Documentación del proyecto
-
+└── src/
+    ├── app.js
+    ├── config/
+    │   └── db.js
+    ├── controllers/
+    │   ├── tasks.controller.js
+    │   └── users.controller.js
+    ├── middlewares/
+    │   ├── error.middleware.js
+    │   └── validator.middleware.js
+    ├── models/
+    │   ├── tasks.model.js
+    │   └── users.model.js
+    ├── routes/
+    │   ├── tasks.routes.js
+    │   └── users.routes.js
+    ├── schemas/
+    │   ├── tasks.schema.js
+    │   └── users.schema.js
+    └── utils/
+        ├── catchAsync.js
+        └── response.handler.js
 ```
 
 ## 🛠️ Instalación & Ejecución
@@ -124,22 +124,22 @@ npm start
 ### 👥 Usuarios
 | Method   | Endpoint         | Descripción                          |
 |----------|------------------|--------------------------------------|
-| **GET**  | `/api/users`     | Listar todos los usuarios            |
-| **POST** | `/api/users`     | Crear nuevo usuario                  |
-| **GET**  | `/api/users/:id` | Consultar usuario por ID             |
-| **PUT**  | `/api/users/:id` | Actualizar usuario completo          |
-| **PATCH**| `/api/users/:id` | Actualización parcial de usuario     |
-| **DELETE**| `/api/users/:id`| Eliminar usuario                     |
+| **GET**  | `/users`     | Listar todos los usuarios            |
+| **POST** | `/users`     | Crear nuevo usuario                  |
+| **GET**  | `/users/:id` | Consultar usuario por ID             |
+| **PUT**  | `/users/:id` | Actualizar usuario completo          |
+| **PATCH**| `/users/:id` | Actualización parcial de usuario     |
+| **DELETE**| `/users/:id`| Eliminar usuario                     |
 
 ### 📋 Tareas
 | Method   | Endpoint         | Descripción                          |
 |----------|------------------|--------------------------------------|
-| **GET**  | `/api/tasks`     | Listar todas las tareas              |
-| **POST** | `/api/tasks`     | Crear nueva tarea                    |
-| **GET**  | `/api/tasks/:id` | Consultar tarea por ID               |
-| **PUT**  | `/api/tasks/:id` | Actualizar tarea completa            |
-| **PATCH**| `/api/tasks/:id` | Actualización parcial de tarea       |
-| **DELETE**| `/api/tasks/:id`| Eliminar tarea                       |
+| **GET**  | `/tasks`     | Listar todas las tareas              |
+| **POST** | `/tasks`     | Crear nueva tarea                    |
+| **GET**  | `/tasks/:id` | Consultar tarea por ID               |
+| **PUT**  | `/tasks/:id` | Actualizar tarea completa            |
+| **PATCH**| `/tasks/:id` | Actualización parcial de tarea       |
+| **DELETE**| `/tasks/:id`| Eliminar tarea                       |
 
 ---
 
