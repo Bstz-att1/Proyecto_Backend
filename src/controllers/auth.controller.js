@@ -112,3 +112,24 @@ export const refreshJWT = catchAsync(async (req, res, next) => {
         refreshToken: newRefreshToken
     });
 });
+
+// ====================================================
+//                    3. LOGOUT
+// ====================================================
+export const logout = catchAsync(async (req, res, next) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        const error = new Error("Refresh token requerido");
+        error.statusCode = 400;
+        return next(error);
+    }
+
+    const user = await UserModel.findByRefreshToken(refreshToken);
+
+    if (user) {
+        await UserModel.revokeRefreshToken(user.id);
+    }
+
+    successResponse(res, 200, "Sesión cerrada correctamente");
+});
