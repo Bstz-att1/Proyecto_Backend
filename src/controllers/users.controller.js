@@ -1,4 +1,3 @@
-import { getAllUsers, getUser, addUser, updateUser, patchUser, deleteUser } from '../models/users.model.js';
 import { successResponse } from '../utils/response.handler.js';
 import { catchAsync } from '../utils/catchAsync.js';
 import { buildError } from "../utils/response.handler.js";

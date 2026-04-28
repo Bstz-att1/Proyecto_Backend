@@ -17,42 +17,48 @@ const REFRESH_TOKEN_EXPIRY = '1d';
 export const loginJWT = catchAsync(async (req, res, next) => {
     const { document, password } = req.body;
 
+    // 1. Verificamos que lleguen los datos
+    if (!document || !password) {
+        const error = new Error("Documento y contraseña son requeridos");
+        error.statusCode = 400;
+        return next(error);
+    }
+
+    // 2. Buscamos al usuario
     const user = await UserModel.findByDocument(document);
 
     if (!user) {
-        const error = new Error(`No se encontró al usuario con documento ${document}`);
+        const error = new Error("Credenciales inválidas"); // Error genérico por seguridad
         error.statusCode = 401;
         return next(error);
     }
 
+    // 3. Comparamos la contraseña
     const isValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isValid) {
-        const error = new Error(`Credenciales inválidas`);
+        const error = new Error("Credenciales inválidas");
         error.statusCode = 401;
         return next(error);
     }
 
-    // 3. Generamos el Access Token 
+    // 4. Generación de Tokens
     const accessToken = jwt.sign(
-        { 
-            userId: user.id, 
-            email: user.email, 
-            type: 'access',
-        },
+        { userId: user.id, email: user.email, type: 'access' },
         process.env.JWT_SECRET,
-        { expiresIn: ACCESS_TOKEN_EXPIRY }
+        { expiresIn: '15m' }
     );
 
     const refreshToken = jwt.sign(
         { userId: user.id, type: 'refresh' },
         process.env.JWT_REFRESH_SECRET,
-        { expiresIn: REFRESH_TOKEN_EXPIRY }
+        { expiresIn: '1d' }
     );
 
+    // Guardar refresh token en BD
     await UserModel.updateRefreshToken(user.id, refreshToken);
 
-    // 4. Enviamos la respuesta exitosa
+    // 5. Respuesta final
     successResponse(res, 200, "Login exitoso", {
         accessToken,
         refreshToken,
@@ -60,7 +66,7 @@ export const loginJWT = catchAsync(async (req, res, next) => {
             id: user.id,
             name: user.name,
             email: user.email
-        },
+        }
     });
 });
 
