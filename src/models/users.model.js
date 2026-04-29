@@ -1,4 +1,3 @@
-import { ur } from "zod/locales";
 import pool from "../config/db.js";
 
 export const UserModel = {
