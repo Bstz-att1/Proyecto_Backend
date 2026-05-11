@@ -24,6 +24,8 @@ CREATE TABLE users (
     email VARCHAR(120) NOT NULL UNIQUE, 
     document VARCHAR(25) NOT NULL UNIQUE,
     role ENUM('admin', 'user') DEFAULT 'user',
+    password_hash VARCHAR(255) NOT NULL,
+    refresh_token TEXT NULL,
     
     -- Auditoría de registros
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

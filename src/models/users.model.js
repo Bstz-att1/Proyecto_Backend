@@ -1,78 +1,72 @@
-import pool from '../config/db.js';
+import pool from "../config/db.js";
 
-// Crear un nuevo usuario
-export const addUser = async (user) => {
-  const [result] = await pool.query(
-    'INSERT INTO users (name, email, document, role) VALUES (?, ?, ?, ?)',
-    [user.name, user.email, user.document, user.role]
-  );
+export const UserModel = {
+  // 1. Obtener todos los usuarios (Excluimos datos sensibles)
+  getAll: async () => {
+    const [users] = await pool.query("SELECT id, name, document, email, created_at FROM users");
+    return users;
+  },
 
-  return { 
-    id: result.insertId,
-    name: user.name,
-    email: user.email,
-    document: user.document,
-    role: user.role,
-    created: true
-  };
-};
+  // 2. Obtener un usuario por ID
+  findById: async (id) => {
+    const [user] = await pool.query("SELECT id, name, document, email FROM users WHERE id = ?", [id]);
+    return user[0] || null;
+  },
 
-// Consultar todos los usuarios
-export const getAllUsers = async () => {
-  const [rows] = await pool.query('SELECT * FROM users');
-  return rows.map(row => ({
-    id: row.id,
-    name: row.name,
-    email: row.email,
-    document: row.document,
-    role: row.role
-  }));
-};
+  // 3. Obtener usuario por documento (Para el LOGIN: aquí SÍ necesitamos el password_hash)
+  findByDocument: async (document) => {
+    const [user] = await pool.query(
+      "SELECT id, name, document, email, password_hash FROM users WHERE document = ?", 
+      [document]
+    );
+    return user[0] || null;
+  },
 
-// Consultar un usuario específico
-export const getUser = async (id) => {
-  const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
-  return rows.length > 0 ? rows[0] : null;
-};
+  // 4. Actualizar usuario
+  update: async (id, data) => {
+    // Usamos pool.query con el objeto data para que mysql2 mapee las columnas automáticamente
+    const [result] = await pool.query("UPDATE users SET ? WHERE id = ?", [data, id]);
+    if (result.affectedRows === 0) return null;
 
-// Actualizar completamente un usuario (PUT)
-export const updateUser = async (id, data) => {
-  const [result] = await pool.query(
-    'UPDATE users SET name = ?, email = ?, document = ?, role = ? WHERE id = ?',
-    [data.name, data.email, data.document, data.role, id]
-  );
+    return await UserModel.findById(id);
+  },
 
-  return result.affectedRows > 0
-    ? { id, ...data, updated: true }
-    : null;
-};
+  // 5. Eliminar usuario
+  delete: async (id) => {
+    const [result] = await pool.query("DELETE FROM users WHERE id = ?", [id]);
+    return result.affectedRows > 0;
+  },
 
-// Actualizar parcialmente un usuario (PATCH)
-export const patchUser = async (id, data) => {
-  const usuario = await getUser(id);
-  if (!usuario) return null;
+  // 6. Crear un nuevo usuario
+  create: async (newUser) => {
+    const { name, document, email, password_hash } = newUser;
+    const [result] = await pool.query(
+      "INSERT INTO users (name, document, email, password_hash) VALUES (?, ?, ?, ?)",
+      [name, document, email, password_hash],
+    );
 
-  const updated = {
-    name: data.name ?? usuario.name,
-    email: data.email ?? usuario.email,
-    document: data.document ?? usuario.document,
-    role: data.role ?? usuario.role
-  };
+    return await UserModel.findById(result.insertId);
+  },
 
-  const [result] = await pool.query(
-    'UPDATE users SET name = ?, email = ?, document = ?, role = ? WHERE id = ?',
-    [updated.name, updated.email, updated.document, updated.role, id]
-  );
+  // 7. Actualizar refresh_token
+  updateRefreshToken: async (userId, refresh_token) => {
+    await pool.query("UPDATE users SET refresh_token = ? WHERE id = ?",
+      [refresh_token, userId]
+    );
+  },
 
-  return result.affectedRows > 0
-    ? { id, ...updated, updated: true }
-    : null;
-};
+  // 8. Buscar usuario por refresh_token
+  findByRefreshToken: async (refresh_token) => {
+    const [rows] = await pool.query("SELECT id, name, document, email FROM users WHERE refresh_token = ?",
+      [refresh_token]
+    );
+    return rows[0] || null;
+  },
 
-// Eliminar un usuario
-export const deleteUser = async (id) => {
-  const [result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
-  return result.affectedRows > 0
-    ? { id, deleted: true }
-    : null;
+  // 9. Borra el refresh_token
+  revokeRefreshToken: async (userId) => {
+    await pool.query("UPDATE users SET refresh_token = NULL WHERE id = ?",
+      [userId]
+    );
+  },
 };

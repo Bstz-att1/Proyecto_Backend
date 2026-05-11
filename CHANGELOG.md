@@ -181,3 +181,49 @@
 - `v1.4.3` → Normalización de respuestas en modelos de backend y mejoras de consistencia en operaciones CRUD/PATCH.
 
 -----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.4.4] - 2026-04-29
+
+### Changed
+- **sql/database.sql**
+  - Actualización del esquema de `users` para alinear autenticación JWT con backend.
+  - Inclusión/normalización de columnas requeridas por el flujo de auth:
+    - `password_hash`
+    - `refresh_token`
+
+- **sql/data.sql**
+  - Actualización de inserts de usuarios para usar `password_hash` y mantener compatibilidad con login.
+  - Ajuste de consistencia entre datos semilla y esquema actual.
+
+- **src/controllers/users.controller.js**
+  - Correcciones críticas de ejecución:
+    - Reemplazo de funciones inexistentes por métodos reales de `UserModel`.
+    - Corrección de variable no definida en PATCH (`userData`).
+    - Reemplazo de `createError` por `buildError` para consistencia con utilidades de respuesta.
+    - Unificación de imports y flujo de errores en todo el controlador.
+
+- **src/models/users.model.js**
+  - Eliminación de import inválido/no usado (`zod/locales`) que podía provocar fallo de carga del módulo.
+
+### Fixed
+- Errores de runtime en módulo de usuarios por:
+  - funciones no definidas,
+  - variable no declarada,
+  - import inválido.
+
+### Notes
+- No se ejecutaron pruebas por decisión explícita del usuario.
+- Cambios enfocados en corregir funcionamiento y consistencia del backend.
+
+### Version
+- `v1.0.0` → Inicio del backend con servidor básico y rutas directas.  
+- `v1.1.0` → Separación de rutas y creación de controladores.  
+- `v1.2.0` → CRUD completo con soporte para PATCH en usuarios y tareas.
+- `v1.3.1` → Manejo uniforme de errores 404, correcciones en modelos y controladores, servidor más robusto y respuestas consistentes.  
+- `v1.4.0` → Middleware global de errores, controladores y modelos ajustados, servidor más robusto y respuestas consistentes.  
+- `v1.4.1` → Refactor de modelos y controladores de usuarios y tareas.
+- `v1.4.2` → Ampliación y normalización de datos semilla en `sql/data.sql` con 5 tareas por usuario y contenido descriptivo coherente.
+- `v1.4.3` → Normalización de respuestas en modelos de backend y mejoras de consistencia en operaciones CRUD/PATCH.
+- `v1.4.4` → Ajustes de BD/datos para autenticación y fixes críticos en users controller/model.
+
+-----------------------------------------------------------------------------------------------------------------------------
