@@ -6,11 +6,9 @@ import {
   updateTaskById,
   patchTaskById,
   deleteTaskById
-} from '../controllers/tasks.controller.js';
-import { validateSchema } from '../middlewares/validator.middleware.js';
-import { validateToken } from '../middlewares/auth.middleware.js';
-import { checkPermission } from '../middlewares/rbac.middleware.js';
-import { taskSchema } from '../schemas/tasks.schema.js';
+} from '../controllers/index.js';
+import { validateSchema, validateToken, checkPermission } from '../middlewares/index.js';
+import { taskSchema } from '../schemas/index.js';
 
 const router = Router();
 

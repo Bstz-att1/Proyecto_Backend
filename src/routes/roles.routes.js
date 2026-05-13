@@ -1,9 +1,7 @@
 import { Router } from 'express';
-import { getRoles, getRoleById, manageRole } from '../controllers/roles.controller.js';
-import { validateToken } from '../middlewares/auth.middleware.js';
-import { checkPermission } from '../middlewares/rbac.middleware.js';
-import { validateSchema } from '../middlewares/validator.middleware.js';
-import { roleManagementSchema } from '../schemas/roles.schema.js';
+import { getRoles, getRoleById, manageRole } from '../controllers/index.js';
+import { validateToken, checkPermission, validateSchema } from '../middlewares/index.js';
+import { roleManagementSchema } from '../schemas/index.js';
 
 const router = Router();
 

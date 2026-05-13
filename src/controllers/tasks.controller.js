@@ -1,6 +1,5 @@
-import { getAllTasks, getTask, addTask, updateTask, patchTask, deleteTask } from '../models/tasks.model.js';
-import { buildError, successResponse } from '../utils/response.handler.js';
-import { catchAsync } from '../utils/catchAsync.js';
+import { getAllTasks, getTask, addTask, updateTask, patchTask, deleteTask } from '../models/index.js';
+import { buildError, successResponse, catchAsync } from '../utils/index.js';
 
 // Consultar todas las tareas
 export const getTasks = catchAsync(async (req, res, next) => {

@@ -6,11 +6,9 @@ import {
   updateUserById,
   patchUserById,
   deleteUserById
-} from '../controllers/users.controller.js';
-import { validateSchema } from '../middlewares/validator.middleware.js';
-import { validateToken } from '../middlewares/auth.middleware.js';
-import { checkPermission } from '../middlewares/rbac.middleware.js';
-import { userSchema } from '../schemas/users.schema.js';
+} from '../controllers/index.js';
+import { validateSchema, validateToken, checkPermission } from '../middlewares/index.js';
+import { userSchema } from '../schemas/index.js';
 
 const router = Router();
 
