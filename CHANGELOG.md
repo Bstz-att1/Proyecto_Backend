@@ -248,3 +248,24 @@
 
 ### Notes
 - Esta versión marca el inicio de la rama funcional `v1.5.0` para gestión de roles y permisos en backend.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.5.1] - 2026-05-13
+
+### Added
+- Creación del controlador de roles en `src/controllers/roles.controller.js`.
+- Nuevos endpoints HTTP para gestión de roles:
+  - `GET /roles` para listar todos los roles.
+  - `GET /roles/:id` para consultar el detalle de un rol por ID.
+
+### Changed
+- El flujo de respuestas del nuevo módulo de roles quedó alineado al estándar JSON de la API (v1.4.3) mediante `successResponse`.
+- El manejo de errores en controladores de roles se implementó con `buildError` y delegación al middleware global.
+- Todo el controlador de roles se encapsuló con `catchAsync` para manejo consistente de errores asíncronos.
+
+### Notes
+- Se implementó validación de `id` como entero positivo en `GET /roles/:id`:
+  - `400 Bad Request` para IDs inválidos.
+  - `404 Not Found` cuando el rol no existe.
+- Esta versión se enfoca en exponer la capa HTTP de roles para habilitar integración futura con panel frontend de administración de accesos.
