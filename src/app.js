@@ -6,6 +6,7 @@ import "dotenv/config"; // Importante para cargar las variables de entorno (.env
 import authRoutes from './routes/auth.routes.js'; // <-- NUEVA IMPORTACIÓN
 import userRoutes from './routes/users.routes.js';
 import taskRoutes from './routes/tasks.routes.js';
+import rolesRoutes from './routes/roles.routes.js';
 
 import { successResponse } from "./utils/response.handler.js";
 import { globalErrorHandler } from "./middlewares/error.middleware.js"
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 app.use('/auth', authRoutes); 
 app.use('/users', userRoutes);
 app.use('/tasks', taskRoutes);
+app.use('/roles', rolesRoutes);
 
 // Middleware de errores (Siempre al final)
 app.use(globalErrorHandler);
