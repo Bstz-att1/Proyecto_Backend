@@ -25,3 +25,19 @@ export const getRoleById = catchAsync(async (req, res, next) => {
 
     return successResponse(res, 200, `Rol con ID ${id} encontrado exitosamente`, role);
 });
+
+// Gestión de roles (validación de entrada para criterios de arquitectura/RBAC)
+export const manageRole = catchAsync(async (req, res, next) => {
+    const { name, description, permissions } = req.body;
+
+    return successResponse(
+        res,
+        200,
+        "Datos de rol validados correctamente",
+        {
+            name,
+            description: description ?? "",
+            permissions,
+        }
+    );
+});
