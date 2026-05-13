@@ -1,0 +1,53 @@
+import pool from "../config/db.js";
+
+export const RoleModel = {
+  /**
+   * Obtiene todos los roles.
+   * @returns {Promise<Array<{id:number,name:string,description:string|null,created_at:Date}>>}
+   */
+  findAll: async () => {
+    const [rows] = await pool.query(
+      "SELECT id, name, description, created_at FROM roles ORDER BY id ASC"
+    );
+    return rows;
+  },
+
+  /**
+   * Obtiene un rol por su ID.
+   * @param {number} id - ID del rol.
+   * @returns {Promise<{id:number,name:string,description:string|null,created_at:Date}|null>}
+   */
+  findById: async (id) => {
+    const [rows] = await pool.query(
+      "SELECT id, name, description, created_at FROM roles WHERE id = ?",
+      [id]
+    );
+    return rows[0] || null;
+  },
+
+  /**
+   * Obtiene los permisos asignados a un usuario por medio de sus roles.
+   * Retorna un array limpio de strings (sin nulos, sin vacíos, sin duplicados).
+   * @param {number} userId - ID del usuario.
+   * @returns {Promise<string[]>}
+   */
+  getPermissionsByUserId: async (userId) => {
+    const [rows] = await pool.query(
+      `
+      SELECT DISTINCT p.code AS permission
+      FROM users u
+      INNER JOIN user_roles ur ON ur.user_id = u.id
+      INNER JOIN roles r ON r.id = ur.role_id
+      INNER JOIN role_permissions rp ON rp.role_id = r.id
+      INNER JOIN permissions p ON p.id = rp.permission_id
+      WHERE u.id = ?
+      ORDER BY p.code ASC
+      `,
+      [userId]
+    );
+
+    return rows
+      .map((row) => row.permission)
+      .filter((permission) => typeof permission === "string" && permission.trim() !== "");
+  },
+};
