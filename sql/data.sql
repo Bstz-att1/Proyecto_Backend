@@ -1,3 +1,50 @@
+-- ==========================================
+-- 1. INSERTAR ROLES
+-- ==========================================
+INSERT INTO roles (id, name, description) VALUES
+(1, 'ADMIN', 'Acceso total a la administración de usuarios y tareas'),
+(2, 'SUPERVISOR', 'Gestión de todas las tareas y visualización de usuarios'),
+(3, 'USER', 'Gestión exclusiva de sus propias tareas');
+
+-- ==========================================
+-- 2. INSERTAR PERMISOS (Nomenclatura granular)
+-- ==========================================
+INSERT INTO permissions (id, code, description) VALUES
+-- Permisos de Usuarios
+(1, 'users.get', 'Ver listado de usuarios'),
+(2, 'users.create', 'Crear nuevos usuarios'),
+(3, 'users.update', 'Editar información de usuarios'),
+(4, 'users.delete', 'Eliminar usuarios del sistema'),
+-- Permisos de Tareas
+(5, 'tasks.get', 'Listar y consultar tareas'),
+(6, 'tasks.create', 'Crear nuevas tareas'),
+(7, 'tasks.update', 'Modificar estado o contenido de tareas'),
+(8, 'tasks.delete', 'Eliminar tareas del sistema'),
+-- Permisos de Roles
+(9, 'roles.get', 'Ver listado y detalle de roles'),
+(10, 'roles.manage', 'Gestionar asignación de permisos por rol'),
+-- Permisos Especiales
+(11, 'reports.export', 'Exportar reportes de productividad');
+
+-- ==========================================
+-- 3. VINCULAR ROLES CON PERMISOS
+-- ==========================================
+
+-- ADMIN: Tiene todos los permisos
+INSERT INTO role_permissions (role_id, permission_id) 
+SELECT 1, id FROM permissions;
+
+-- SUPERVISOR: Gestiona tareas y puede ver usuarios (pero no editarlos/borrarlos)
+INSERT INTO role_permissions (role_id, permission_id) VALUES 
+(2, 1), -- users.get
+(2, 5), (2, 6), (2, 7), (2, 8), -- Gestión de tareas
+(2, 9), -- roles.get
+(2, 11); -- reports.export
+
+-- USER: Solo puede operar con tareas
+INSERT INTO role_permissions (role_id, permission_id) VALUES 
+(3, 5), (3, 6), (3, 7), (3, 8);
+
 -- Insert de usuarios (4 usuarios con hash distinto)
 -- Contraseñas para test:
 -- 1) dario.herrera@gmail.com  -> Password123!

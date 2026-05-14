@@ -1,8 +1,6 @@
 -- =====================================================
 -- 1. BASE DE DATOS Y USUARIO 
 -- =====================================================
-CREATE USER 'user_manager_3233198'@'localhost' IDENTIFIED BY '#ADSO_3233198';
-
 CREATE DATABASE IF NOT EXISTS task_manager;
 USE task_manager;
 
