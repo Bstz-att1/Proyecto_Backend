@@ -1,6 +1,5 @@
-import { successResponse, buildError } from '../utils/response.handler.js';
-import { catchAsync } from '../utils/catchAsync.js';
-import { RoleModel } from '../models/roles.model.js';
+import { successResponse, buildError, catchAsync } from '../utils/index.js';
+import { RoleModel } from '../models/index.js';
 
 // Consultar todos los roles
 export const getRoles = catchAsync(async (req, res, next) => {

@@ -1,4 +1,4 @@
-import { errorResponse } from '../utils/response.handler.js';
+import { errorResponse } from '../utils/index.js';
 
 export const globalErrorHandler = (err, req, res, next) => {
     const statusCode = err.statusCode || 500;

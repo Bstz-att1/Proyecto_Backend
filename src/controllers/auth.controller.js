@@ -1,10 +1,8 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-import { UserModel } from "../models/users.model.js";
-import { catchAsync } from "../utils/catchAsync.js";
-import { successResponse } from "../utils/response.handler.js";
-import { verifyJWT } from "../utils/jwt.handler.js"; 
+import { UserModel } from "../models/index.js";
+import { catchAsync, successResponse, verifyJWT } from "../utils/index.js";
 
 
 // Configuración de tiempos de expiración

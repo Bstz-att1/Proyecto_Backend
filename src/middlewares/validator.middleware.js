@@ -1,4 +1,4 @@
-import { buildError } from "../utils/response.handler.js";
+import { buildError } from "../utils/index.js";
 
 export const validateSchema = (schema) => {
   return (req, res, next) => {

@@ -8,10 +8,11 @@ import userRoutes from './routes/users.routes.js';
 import taskRoutes from './routes/tasks.routes.js';
 import rolesRoutes from './routes/roles.routes.js';
 
-import { successResponse } from "./utils/response.handler.js";
-import { globalErrorHandler } from "./middlewares/error.middleware.js"
+import { successResponse } from "./utils/index.js";
+import { globalErrorHandler } from "./middlewares/index.js";
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 // Middlewares base 
 app.use(cors());

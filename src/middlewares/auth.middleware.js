@@ -1,5 +1,4 @@
-import { verifyJWT } from '../utils/jwt.handler.js'; 
-import { catchAsync } from '../utils/catchAsync.js';
+import { verifyJWT, catchAsync } from '../utils/index.js';
 import "dotenv/config";
 
 export const validateToken = catchAsync(async (req, res, next) => {

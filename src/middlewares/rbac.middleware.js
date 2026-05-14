@@ -1,6 +1,5 @@
-import { RoleModel } from '../models/roles.model.js';
-import { buildError } from '../utils/response.handler.js';
-import { catchAsync } from '../utils/catchAsync.js';
+import { RoleModel } from '../models/index.js';
+import { buildError, catchAsync } from '../utils/index.js';
 
 export const checkPermission = (requiredPermission) =>
   catchAsync(async (req, res, next) => {

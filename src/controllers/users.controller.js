@@ -1,6 +1,5 @@
-import { successResponse, buildError } from '../utils/response.handler.js';
-import { catchAsync } from '../utils/catchAsync.js';
-import { UserModel } from '../models/users.model.js';
+import { successResponse, buildError, catchAsync } from '../utils/index.js';
+import { UserModel } from '../models/index.js';
 
 // Consultar todos los usuarios
 export const getUsers = catchAsync(async (req, res, next) => {
