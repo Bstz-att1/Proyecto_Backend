@@ -227,3 +227,24 @@
 - `v1.4.4` → Ajustes de BD/datos para autenticación y fixes críticos en users controller/model.
 
 -----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.5.0] - 2026-05-13
+
+### Added
+- Implementación de la nueva capa de acceso a datos para roles en `src/models/roles.model.js`.
+- Creación de `RoleModel` con métodos base de lectura:
+  - `findAll()` para listar roles.
+  - `findById(id)` para consultar un rol específico.
+- Implementación de `getPermissionsByUserId(userId)` para obtener permisos efectivos de un usuario en tiempo real mediante SQL con múltiples `JOIN`:
+  - `users -> user_roles -> roles -> role_permissions -> permissions`.
+- Documentación JSDoc en todos los métodos del modelo de roles (parámetros y tipo de retorno).
+
+### Changed
+- Se estandarizó el acceso a datos de roles usando el mismo patrón de modelos existente (`pool.query` + métodos async).
+- El método `getPermissionsByUserId` retorna un arreglo limpio de strings:
+  - Sin valores nulos.
+  - Sin valores vacíos.
+  - Sin permisos duplicados (uso de `DISTINCT` en SQL).
+
+### Notes
+- Esta versión marca el inicio de la rama funcional `v1.5.0` para gestión de roles y permisos en backend.
