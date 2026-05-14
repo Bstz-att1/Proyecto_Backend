@@ -5,7 +5,7 @@ CREATE DATABASE IF NOT EXISTS task_manager;
 USE task_manager;
 
 -- =====================================================
--- 2. TABLAS DE SEGURIDAD (
+-- 2. TABLAS DE SEGURIDAD 
 -- =====================================================
 
 -- Tabla de Roles (Ej: 'admin', 'editor', 'viewer')
@@ -32,7 +32,6 @@ CREATE TABLE users (
     name VARCHAR(100) NOT NULL,
     email VARCHAR(120) NOT NULL UNIQUE, 
     document VARCHAR(25) NOT NULL UNIQUE,
-
     password_hash VARCHAR(255) NOT NULL,
     refresh_token TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
