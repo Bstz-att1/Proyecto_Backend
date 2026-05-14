@@ -269,3 +269,33 @@
   - `400 Bad Request` para IDs inválidos.
   - `404 Not Found` cuando el rol no existe.
 - Esta versión se enfoca en exponer la capa HTTP de roles para habilitar integración futura con panel frontend de administración de accesos.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.5.2] - 2026-05-13
+
+### Added
+- Nuevo middleware RBAC en `src/middlewares/rbac.middleware.js`:
+  - Se implementó `checkPermission(requiredPermission)` para validar permisos por ruta.
+  - Lectura de identidad desde `req.user.userId` (inyectado por `validateToken`).
+  - Consulta de permisos efectivos por usuario usando `RoleModel.getPermissionsByUserId(userId)`.
+  - Adjunta `req.user.permissions` para reutilización en el flujo de request.
+- Nuevo schema de validación para gestión de roles en `src/schemas/roles.schema.js`:
+  - `roleManagementSchema` con validaciones de:
+    - `name` (string, mínimo/máximo, trim).
+    - `description` (opcional, string, longitud máxima).
+    - `permissions` (array obligatorio de códigos con formato `recurso:accion`).
+
+### Changed
+- `src/routes/roles.routes.js` ahora integra seguridad por capas sin romper el flujo existente de autenticación:
+  - `GET /roles` y `GET /roles/:id` protegidos con `validateToken` + `checkPermission('roles:read')`.
+  - Nuevo endpoint `POST /roles/manage` con:
+    - `validateToken`
+    - `checkPermission('roles:manage')`
+    - `validateSchema(roleManagementSchema)`
+- `src/controllers/roles.controller.js` incorpora `manageRole` para recibir datos ya validados por schema y responder de forma estandarizada.
+
+### Notes
+- El middleware RBAC retorna **403 Forbidden** cuando el usuario autenticado no posee el permiso requerido.
+- La validación por schema se ejecuta antes del controlador para garantizar integridad de entrada en la gestión de roles.
+- Se mantiene nomenclatura en camelCase y modularidad por responsabilidad (routes/middlewares/schemas/controllers).
