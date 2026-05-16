@@ -40,14 +40,14 @@ export const RoleModel = {
 
   /**
    * Obtiene los permisos asignados a un usuario por medio de sus roles.
-   * Retorna un array limpio de strings (sin nulos, sin vacíos, sin duplicados).
+   * Retorna objetos con código y descripción para documentar alcance funcional del permiso.
    * @param {number} userId - ID del usuario.
-   * @returns {Promise<string[]>}
+   * @returns {Promise<Array<{code:string, description:string}>>}
    */
   getPermissionsByUserId: async (userId) => {
     const [rows] = await pool.query(
       `
-      SELECT DISTINCT p.code AS permission
+      SELECT DISTINCT p.code, p.description
       FROM users u
       INNER JOIN user_roles ur ON ur.user_id = u.id
       INNER JOIN roles r ON r.id = ur.role_id
@@ -60,7 +60,10 @@ export const RoleModel = {
     );
 
     return rows
-      .map((row) => row.permission)
-      .filter((permission) => typeof permission === "string" && permission.trim() !== "");
+      .filter((row) => typeof row.code === "string" && row.code.trim() !== "")
+      .map((row) => ({
+        code: row.code,
+        description: row.description ?? "",
+      }));
   },
 };
