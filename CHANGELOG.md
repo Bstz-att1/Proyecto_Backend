@@ -408,3 +408,56 @@
     - extrae códigos con `permissions.map(permission => permission.code)`
     - valida acceso contra `requiredPermission` usando el arreglo de códigos.
   - Se conserva `req.user.permissions` con estructura completa para trazabilidad.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.5.7] - 2026-05-16
+
+### Added
+- Implementación de CRUD extendido para roles con soporte completo en capa HTTP:
+  - `POST /roles`
+  - `PUT /roles/:id`
+  - `PATCH /roles/:id`
+  - `DELETE /roles/:id`
+- Nuevo endpoint para consultar permisos de un rol específico:
+  - `GET /roles/:id/permissions`
+- Nuevo método en modelo de roles:
+  - `findPermissionsByRoleId(roleId)` para resolver permisos por rol desde `role_permissions`.
+- Exportación de `getRolePermissionsById` en `src/controllers/index.js`.
+
+### Changed
+- **src/schemas/roles.schema.js**
+  - Se corrigió el formato de validación de permisos a convención real:
+    - de `recurso:accion`
+    - a `recurso.accion`.
+  - Se añadieron/ajustaron esquemas para update de roles:
+    - `roleUpdateSchema`
+    - `rolePatchSchema`
+  - Ambos esquemas permiten actualización parcial (estilo patch-like), incluyendo `permissions`.
+- **src/routes/roles.routes.js**
+  - Se ampliaron rutas protegidas de roles con `validateToken` + `checkPermission(...)`:
+    - altas, edición, eliminación y consulta de permisos por rol.
+  - Se mantuvo `POST /roles/manage` para validación guiada por schema.
+- **src/models/roles.model.js**
+  - Se agregó `updateWithPermissions(id, roleData)` con transacción:
+    - actualiza datos básicos del rol (`name`, `description`) cuando se envían,
+    - sincroniza permisos en `role_permissions` (reemplazo controlado),
+    - `commit/rollback` para consistencia transaccional.
+  - Se conservan métodos previos de consulta y creación con permisos.
+- **src/controllers/roles.controller.js**
+  - `createRole` valida códigos de permisos contra BD antes de persistir.
+  - `updateRoleById` y `patchRoleById` ahora aceptan `permissions`:
+    - validan existencia de códigos,
+    - convierten códigos a IDs,
+    - actualizan rol y relaciones en una operación transaccional.
+  - Se agregó `getRolePermissionsById` para retornar permisos de un rol por ID.
+  - Se mantuvo validación robusta de `id` y control de duplicados por nombre.
+
+### Fixed
+- Error de validación por formato de permisos no alineado con los datos reales (`recurso:accion` vs `recurso.accion`).
+- Error al actualizar roles cuando no se enviaba `name` en `PUT`.
+- Restricción funcional que impedía actualizar permisos mediante `PUT/PATCH`.
+- Omisión de endpoint dedicado para consultar permisos por rol.
+
+### Notes
+- El módulo de roles queda alineado con la arquitectura existente (routes → controllers → models + schemas + middlewares).
