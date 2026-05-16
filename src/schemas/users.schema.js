@@ -22,12 +22,20 @@ export const userSchema = z.object({
     })
     .min(4, "El documento debe tener al menos 4 caracteres"),
 
+  password: z
+    .string({
+      required_error: "La contraseña es obligatoria",
+      invalid_type_error: "La contraseña debe ser un texto",
+    })
+    .min(6, "La contraseña debe tener al menos 6 caracteres"),
+
   role: z
     .string({
       required_error: "El rol es obligatorio",
       invalid_type_error: "El rol debe ser un texto",
     })
-    .refine((val) => ["admin", "user"].includes(val), {
-      message: "Rol inválido: debe ser admin o user",
+    .transform((val) => val.trim().toUpperCase())
+    .refine((val) => ["ADMIN", "SUPERVISOR", "USER"].includes(val), {
+      message: "Rol inválido: debe ser ADMIN, SUPERVISOR o USER",
     }),
 });

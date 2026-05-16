@@ -299,3 +299,83 @@
 - El middleware RBAC retorna **403 Forbidden** cuando el usuario autenticado no posee el permiso requerido.
 - La validación por schema se ejecuta antes del controlador para garantizar integridad de entrada en la gestión de roles.
 - Se mantiene nomenclatura en camelCase y modularidad por responsabilidad (routes/middlewares/schemas/controllers).
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.5.5] - 2026-05-16
+
+### Added
+- Nuevo util centralizado para respuestas de no autenticado en `src/utils/response.handler.js`:
+  - `buildUnauthorizedError(detail)` para estandarizar errores **401** con mensaje general reutilizable.
+- Exportación del nuevo util en `src/utils/index.js` para consumo transversal en middlewares y controladores.
+- Nuevo método en `src/models/roles.model.js`:
+  - `findByName(name)` para resolver roles por nombre y soportar asignación dinámica al crear usuarios.
+- Nuevos métodos en `src/models/users.model.js` para control de sesión:
+  - `findByIdWithTokenVersion(id)` para validar sesión activa contra base de datos.
+  - `incrementTokenVersion(userId)` para invalidar access tokens emitidos previamente.
+
+### Changed
+- `src/controllers/users.controller.js`:
+  - `createUser` ahora:
+    - recibe `role` desde el body,
+    - resuelve el rol real en BD con `RoleModel.findByName`,
+    - valida existencia del rol,
+    - hashea `password` con `bcryptjs`,
+    - crea usuario pasando `role_id`.
+- `src/models/users.model.js`:
+  - `create(newUser)` fue reforzado con transacción:
+    - inserta en `users`,
+    - asigna rol en `user_roles`,
+    - confirma con `commit` y hace rollback ante error.
+  - `findByDocument` ahora también retorna `token_version` para emisión de JWT versionados.
+- `src/schemas/users.schema.js`:
+  - `role` normalizado a mayúsculas y validado contra catálogo real:
+    - `ADMIN`, `SUPERVISOR`, `USER`.
+  - Inclusión de `password` como campo obligatorio con validación mínima.
+- `src/controllers/auth.controller.js`:
+  - `logout` protegido contra body indefinido (`req.body || {}`) para evitar errores 500 por destructuring.
+  - `logout` ahora revoca `refresh_token` e incrementa `token_version` para cortar sesión activa.
+  - `loginJWT` y `refreshJWT` emiten tokens incluyendo `tokenVersion`.
+- `src/middlewares/auth.middleware.js`:
+  - Reemplazo de errores 401 repetidos por `buildUnauthorizedError`.
+  - Validación adicional de sesión:
+    - compara `decoded.tokenVersion` del access token contra `users.token_version` en BD.
+    - bloquea tokens viejos tras logout.
+- `src/middlewares/rbac.middleware.js`:
+  - uso de `buildUnauthorizedError` cuando falta identidad de usuario en request.
+- `sql/database.sql`:
+  - se añadió columna `token_version INT NOT NULL DEFAULT 0` en `users`.
+  - se agregó migración segura para esquemas existentes:
+    - `ALTER TABLE users ADD COLUMN IF NOT EXISTS token_version INT NOT NULL DEFAULT 0;`
+
+### Fixed
+- Error al crear usuario por `password_hash` nulo al no mapear contraseña desde el controlador.
+- Inconsistencia de validación de roles (antes limitada a `admin/user`) frente al catálogo real en BD.
+- Error de servidor al hacer logout sin body/refresh token (`Cannot destructure ... of req.body`).
+- Falta de invalidación inmediata de access token después de logout.
+- Duplicación de mensajes 401 en middlewares, ahora centralizados en util compartido.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.5.5] - 2026-05-16
+
+### Changed
+- **src/middlewares/auth.middleware.js**
+  - Se fortaleció la validación del access token usando secreto explícito:
+    - de `verifyJWT(token)`
+    - a `verifyJWT(token, process.env.JWT_SECRET)`.
+  - Objetivo: evitar validaciones ambiguas y asegurar consistencia en la verificación de JWT protegidos.
+
+- **src/routes/auth.routes.js**
+  - Se protegió `POST /auth/logout` con `validateToken` para garantizar identidad autenticada durante el cierre de sesión:
+    - `router.post('/logout', validateToken, logout)`.
+
+- **src/controllers/auth.controller.js**
+  - Se robusteció `logout` para invalidación confiable de sesión:
+    - mantiene flujo por `refreshToken` cuando está presente,
+    - agrega fallback por identidad autenticada (`req.user?.userId`) para invalidar sesión incluso si no coincide/no llega refresh token,
+    - revoca `refresh_token` e incrementa `token_version` sobre el usuario objetivo.
+
+### Fixed
+- Caso donde, tras ejecutar logout, la sesión podía permanecer activa y permitir acceso a endpoints protegidos.
+- Falta de invalidación efectiva cuando el logout dependía únicamente de encontrar coincidencia por `refreshToken`.

@@ -42,13 +42,13 @@ export const loginJWT = catchAsync(async (req, res, next) => {
 
     // 4. Generación de Tokens
     const accessToken = jwt.sign(
-        { userId: user.id, email: user.email, type: 'access' },
+        { userId: user.id, email: user.email, type: 'access', tokenVersion: user.token_version ?? 0 },
         process.env.JWT_SECRET,
         { expiresIn: '15m' }
     );
 
     const refreshToken = jwt.sign(
-        { userId: user.id, type: 'refresh' },
+        { userId: user.id, type: 'refresh', tokenVersion: user.token_version ?? 0 },
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: '1d' }
     );
@@ -97,14 +97,25 @@ export const refreshJWT = catchAsync(async (req, res, next) => {
         return next(error);
     }
 
+    const userWithVersion = await UserModel.findByDocument(user.document);
+
     const newAccessToken = jwt.sign(
-        { userId: user.id, email: user.email, type: 'access' },
+        {
+            userId: user.id,
+            email: user.email,
+            type: 'access',
+            tokenVersion: userWithVersion?.token_version ?? 0
+        },
         process.env.JWT_SECRET,
         { expiresIn: ACCESS_TOKEN_EXPIRY }
     );
 
     const newRefreshToken = jwt.sign(
-        { userId: user.id, type: 'refresh' },
+        {
+            userId: user.id,
+            type: 'refresh',
+            tokenVersion: userWithVersion?.token_version ?? 0
+        },
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: REFRESH_TOKEN_EXPIRY }
     );
@@ -121,18 +132,24 @@ export const refreshJWT = catchAsync(async (req, res, next) => {
 //                    3. LOGOUT
 // ====================================================
 export const logout = catchAsync(async (req, res, next) => {
-    const { refreshToken } = req.body;
+    const { refreshToken } = req.body || {};
+    const userIdFromAccessToken = req.user?.userId;
 
-    if (!refreshToken) {
+    if (!refreshToken && !userIdFromAccessToken) {
         const error = new Error("Refresh token requerido");
         error.statusCode = 400;
         return next(error);
     }
 
-    const user = await UserModel.findByRefreshToken(refreshToken);
+    const userByRefresh = refreshToken
+        ? await UserModel.findByRefreshToken(refreshToken)
+        : null;
 
-    if (user) {
-        await UserModel.revokeRefreshToken(user.id);
+    const targetUserId = userByRefresh?.id ?? userIdFromAccessToken;
+
+    if (targetUserId) {
+        await UserModel.revokeRefreshToken(targetUserId);
+        await UserModel.incrementTokenVersion(targetUserId);
     }
 
     successResponse(res, 200, "Sesión cerrada correctamente");

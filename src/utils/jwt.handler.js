@@ -7,19 +7,18 @@ export const generateToken = (payload) => {
     });
 };
 
-// 2. Tu función de verificación 
-export const verifyJWT = (token) => {
+// 2. Función de verificación 
+export const verifyJWT = (token, secret = process.env.JWT_SECRET) => {
     try {
-        // Usamos la variable de entorno directamente para no pasarla cada vez
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, secret);
         return { valid: true, decoded };
     } catch (err) {
         let message = 'Acceso denegado: Token inválido';
-        
+
         if (err.name === 'TokenExpiredError') {
             message = 'Acceso denegado: El token ha expirado, inicie sesión nuevamente';
         }
-        
+
         return { valid: false, message };
     }
 };

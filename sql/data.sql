@@ -84,50 +84,6 @@ INSERT INTO tasks (user_id, title, description, status, created_by_role) VALUES
 (4, 'Pruebas de integración', 'Validar conexión entre frontend, API y base de datos', 'pendiente', 'USER'),
 (4, 'Refactorizar servicios', 'Separar lógica de negocio en módulos reutilizables', 'completada', 'USER');
 
-
--- ==========================================
--- 1. INSERTAR ROLES
--- ==========================================
-INSERT INTO roles (id, name, description) VALUES
-(1, 'ADMIN', 'Acceso total a la administración de usuarios y tareas'),
-(2, 'SUPERVISOR', 'Gestión de todas las tareas y visualización de usuarios'),
-(3, 'USER', 'Gestión exclusiva de sus propias tareas');
-
--- ==========================================
--- 2. INSERTAR PERMISOS (Nomenclatura granular)
--- ==========================================
-INSERT INTO permissions (id, code, description) VALUES
--- Permisos de Usuarios
-(1, 'users.get', 'Ver listado de usuarios'),
-(2, 'users.create', 'Crear nuevos usuarios'),
-(3, 'users.update', 'Editar información de usuarios'),
-(4, 'users.delete', 'Eliminar usuarios del sistema'),
--- Permisos de Tareas
-(5, 'tasks.get', 'Listar y consultar tareas'),
-(6, 'tasks.create', 'Crear nuevas tareas'),
-(7, 'tasks.update', 'Modificar estado o contenido de tareas'),
-(8, 'tasks.delete', 'Eliminar tareas del sistema'),
--- Permisos Especiales
-(9, 'reports.export', 'Exportar reportes de productividad');
-
--- ==========================================
--- 3. VINCULAR ROLES CON PERMISOS
--- ==========================================
-
--- ADMIN: Tiene todos los permisos (1 al 9)
-INSERT INTO role_permissions (role_id, permission_id) 
-SELECT 1, id FROM permissions;
-
--- SUPERVISOR: Gestiona tareas y puede ver usuarios (pero no editarlos/borrarlos)
-INSERT INTO role_permissions (role_id, permission_id) VALUES 
-(2, 1), -- users.get
-(2, 5), (2, 6), (2, 7), (2, 8), -- Gestión de tareas
-(2, 9); -- reports.export
-
--- USER: Solo puede operar con tareas
-INSERT INTO role_permissions (role_id, permission_id) VALUES 
-(3, 5), (3, 6), (3, 7), (3, 8);
-
 -- 1. Asignar ADMIN a Dario
 INSERT INTO user_roles (user_id, role_id) 
 VALUES (
