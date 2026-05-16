@@ -482,3 +482,34 @@
 ### Notes
 - Esta versión no modifica lógica de negocio ni comportamiento de endpoints; corresponde a mejora documental.
 - El archivo está diseñado para consulta directa del código, con foco en claridad funcional y responsabilidad por componente.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.6.1] - 2026-05-16
+
+### Changed
+- **src/models/users.model.js**
+  - `getAll()` ahora retorna también el rol actual del usuario mediante `LEFT JOIN` entre:
+    - `users`
+    - `user_roles`
+    - `roles`
+  - `findById(id)` ahora incluye el campo `role` para mantener consistencia de lectura en endpoints de detalle.
+  - `update(id, data)` fue reforzado con transacción para:
+    - actualizar campos base del usuario en `users`,
+    - aplicar cambio de rol en `user_roles` cuando se envía `role`,
+    - validar existencia de rol por nombre antes de persistir relación,
+    - mantener `commit/rollback` para consistencia.
+- **src/controllers/users.controller.js**
+  - `updateUserById` y `patchUserById` ahora transforman `password` a `password_hash` con `bcryptjs` antes de delegar al modelo.
+  - Se unificaron mensajes de error para contemplar:
+    - usuario inexistente,
+    - rol inválido enviado en update.
+
+### Fixed
+- Corrección de persistencia en edición de usuarios cuando se modificaba rol desde frontend.
+- Corrección de respuesta de lectura de usuarios para mostrar rol real asignado y evitar desalineación visual en frontend.
+- Corrección de actualización de contraseña en PUT/PATCH (ahora siempre se persiste como hash).
+
+### Notes
+- Estos ajustes se realizaron para alinear completamente el contrato frontend/backend en gestión de usuarios con RBAC.
+- No se introdujeron cambios de rutas; el impacto es interno en capa de modelo/controlador y en consistencia de datos devueltos.
