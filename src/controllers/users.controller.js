@@ -46,10 +46,17 @@ export const createUser = catchAsync(async (req, res, next) => {
 // Actualizar completamente un usuario (PUT)
 export const updateUserById = catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const updated = await UserModel.update(id, req.body);
+    const payload = { ...req.body };
+
+    if (payload.password) {
+        payload.password_hash = await bcrypt.hash(payload.password, 10);
+        delete payload.password;
+    }
+
+    const updated = await UserModel.update(id, payload);
 
     if (!updated) {
-        return next(buildError("Error al actualizar usuario", 404, [`No se encontró el usuario con el ID ${id}`]));
+        return next(buildError("Error al actualizar usuario", 404, [`No se encontró el usuario con el ID ${id} o el rol enviado no es válido`]));
     }
 
     return successResponse(res, 200, `Usuario con ID ${id} actualizado exitosamente (PUT)`, updated);
@@ -58,16 +65,21 @@ export const updateUserById = catchAsync(async (req, res, next) => {
 // Actualización parcial de un usuario (PATCH)
 export const patchUserById = catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const userData = req.body;
+    const userData = { ...req.body };
 
     if (Object.keys(userData).length === 0) {
         return next(buildError("Error al editar usuario", 400, ["Debes enviar al menos un campo para actualizar"]));
+    }
+
+    if (userData.password) {
+        userData.password_hash = await bcrypt.hash(userData.password, 10);
+        delete userData.password;
     }
     
     const patched = await UserModel.update(id, userData);
 
     if (!patched) {
-        return next(buildError("Usuario no encontrado", 404, [`No se encontró el usuario con el ID ${id}`]));
+        return next(buildError("Usuario no encontrado", 404, [`No se encontró el usuario con el ID ${id} o el rol enviado no es válido`]));
     }
 
     return successResponse(res, 200, `Usuario con ID ${id} actualizado exitosamente (PATCH)`, patched);
