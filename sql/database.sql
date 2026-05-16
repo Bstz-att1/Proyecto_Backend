@@ -1,37 +1,68 @@
 -- =====================================================
--- CREACIÓN DE BASE DE DATOS Y PERMISO DE USUARIO PARA LA BASE DE DATOS
+-- 1. BASE DE DATOS Y USUARIO 
 -- =====================================================
-CREATE USER 'user_manager_3233198'@'localhost' IDENTIFIED BY '#ADSO_3233198';
-
 CREATE DATABASE IF NOT EXISTS task_manager;
 USE task_manager;
 
-GRANT ALL PRIVILEGES ON task_manager.* TO 'user_manager_3233198'@'localhost';
-FLUSH PRIVILEGES;
-
 -- =====================================================
---  ACCESO USUARIO Y USO DE LA BASE DE DATOS
+-- 2. TABLAS DE SEGURIDAD 
 -- =====================================================
 
-use task_manager;
+-- Tabla de Roles (Ej: 'admin', 'editor', 'viewer')
+CREATE TABLE roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de Permisos (Ej: 'users.delete', 'tasks.create')
+CREATE TABLE permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(100) NOT NULL UNIQUE, 
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- =====================================================
--- CREAR TABLA DE USUARIOS
+-- 3. TABLA DE USUARIOS 
 -- =====================================================
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(120) NOT NULL UNIQUE, 
     document VARCHAR(25) NOT NULL UNIQUE,
-    role ENUM('admin', 'user') DEFAULT 'user',
-    
-    -- Auditoría de registros
+    password_hash VARCHAR(255) NOT NULL,
+    refresh_token TEXT NULL,
+    token_version INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- =====================================================
--- CREAR TABLA DE TAREAS
+-- 4. TABLAS INTERMEDIAS 
+-- =====================================================
+
+-- Relación: Usuarios <-> Roles
+CREATE TABLE user_roles (
+    user_id INT NOT NULL,
+    role_id INT NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+-- Relación: Roles <-> Permisos
+CREATE TABLE role_permissions (
+    role_id INT NOT NULL,
+    permission_id INT NOT NULL,
+    PRIMARY KEY (role_id, permission_id),
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+);
+
+-- =====================================================
+-- 5. TABLA DE TAREAS 
 -- =====================================================
 CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -39,13 +70,11 @@ CREATE TABLE tasks (
     title VARCHAR(150) NOT NULL,
     description TEXT,
     status ENUM('pendiente', 'en progreso', 'completada') DEFAULT 'pendiente',
-    created_by ENUM('admin', 'user') NOT NULL,
+    created_by_role VARCHAR(50), 
     
-    -- Tiempos de seguimiento
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    -- Restricción de Integridad (No permite borrar usuario con tareas)
     CONSTRAINT fk_user_task
         FOREIGN KEY (user_id)
         REFERENCES users(id)
