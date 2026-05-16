@@ -1,4 +1,5 @@
-import { verifyJWT, catchAsync } from '../utils/index.js';
+import { verifyJWT, catchAsync, buildUnauthorizedError } from '../utils/index.js';
+import { UserModel } from '../models/index.js';
 import "dotenv/config";
 
 export const validateToken = catchAsync(async (req, res, next) => {
@@ -11,27 +12,27 @@ export const validateToken = catchAsync(async (req, res, next) => {
 
     // 2. Si no hay token, lanzamos error al middleware global
     if (!token) {
-        const error = new Error('Acceso denegado: No se proporcionó un token');
-        error.statusCode = 401;
-        return next(error);
+        return next(buildUnauthorizedError('No se proporcionó token de acceso'));
     }
 
     // 3. Verificar token con utilidad
-    const result = verifyJWT(token);
+    const result = verifyJWT(token, process.env.JWT_SECRET);
 
     if (!result.valid) {
-        const error = new Error(result.message);
-        error.statusCode = 401;
-        return next(error);
+        return next(buildUnauthorizedError(result.message));
     }
 
     const decoded = result.decoded;
 
     // 4. Verificar que sea tipo access
     if (decoded.type !== 'access') {
-        const error = new Error('Acceso denegado: El token no es válido para esta operación');
-        error.statusCode = 401;
-        return next(error);
+        return next(buildUnauthorizedError('El token no es válido para esta operación'));
+    }
+
+    const dbUser = await UserModel.findByIdWithTokenVersion(decoded.userId);
+
+    if (!dbUser || (decoded.tokenVersion ?? -1) !== dbUser.token_version) {
+        return next(buildUnauthorizedError('La sesión no es válida o ha sido cerrada'));
     }
 
     // 5. Adjuntar la info del usuario al request (req.user)

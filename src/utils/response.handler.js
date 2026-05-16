@@ -48,3 +48,14 @@ export const buildError = (message, statusCode, details = []) => {
     // Retorna el error para que lo procese el middleware
     return err;
 };
+
+/**
+    Crea un error 401 estandarizado para rutas protegidas
+**/
+export const buildUnauthorizedError = (detail = "No autorizado. Debe iniciar sesión para acceder a este recurso.") => {
+    return buildError(
+        "No autorizado. Debe iniciar sesión para acceder a este recurso.",
+        401,
+        [detail]
+    );
+};
