@@ -281,8 +281,9 @@ JWT_REFRESH_EXPIRES_IN=7d
 
 ## 📚 Documentación adicional
 
-- `DOCUMENTATION.md` → Documentación funcional detallada por módulos.
-- `CHANGELOG.md` → Historial completo de versiones y cambios.
+- [`docs/DOCUMENTATION.md`](./docs/DOCUMENTATION.md) → Documentación funcional detallada por módulos y mapa rápido de archivos/parámetros.
+- [`docs/RBAC.md`](./docs/RBAC.md) → Guía de permisos y reglas RBAC.
+- [`docs/CHANGELOG.md`](./docs/CHANGELOG.md) → Historial completo de versiones y cambios.
 
 ---
 
