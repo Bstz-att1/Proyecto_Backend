@@ -1,149 +1,292 @@
 # 🎯 Gestor de Tareas - Backend API
-[![Node.js](https://img.shields.io/badge/Node.js-v18-green?style=flat&logo=node.js)](https://nodejs.org)
+
+[![Node.js](https://img.shields.io/badge/Node.js-v18+-green?style=flat&logo=node.js)](https://nodejs.org)
 [![Express](https://img.shields.io/badge/Express-5.x-blue?style=flat&logo=express)](https://expressjs.com)
-[![MySQL](https://img.shields.io/badge/MySQL-3.x-lightblue?style=flat&logo=mysql)](https://www.mysql.com)
-[![RESTful](https://img.shields.io/badge/RESTful-CRUD-orange?style=flat&logo=swagger)](https://swagger.io)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-lightblue?style=flat&logo=mysql)](https://www.mysql.com)
+[![JWT](https://img.shields.io/badge/Auth-JWT-orange?style=flat&logo=jsonwebtokens)](https://jwt.io)
+[![RBAC](https://img.shields.io/badge/Security-RBAC-purple?style=flat)](#)
 [![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC)
 
+Backend RESTful para gestión de usuarios, tareas y roles, con autenticación JWT, control de permisos por RBAC y arquitectura modular por capas.
+
+---
+
 ## 📋 Tabla de contenido
-- [📖 Propósito del Proyecto](#📖-propósito-del-proyecto)
+
+- [📖 Descripción general](#-descripción-general)
+- [✅ Estado actual del proyecto](#-estado-actual-del-proyecto)
 - [🏗️ Arquitectura](#️-arquitectura)
-- [📁 Estructura](#📁-estructura)
-- [🛠️ Instalación](#️-instalación)
-- [📖 API](#📖-api)
+- [🧰 Stack tecnológico](#-stack-tecnológico)
+- [📁 Estructura actual del proyecto](#-estructura-actual-del-proyecto)
+- [🛠️ Instalación y ejecución](#️-instalación-y-ejecución)
+- [🔐 Variables de entorno](#-variables-de-entorno)
+- [📡 Endpoints principales](#-endpoints-principales)
+- [🧪 Estado para nueva versión estable](#-estado-para-nueva-versión-estable)
+- [📚 Documentación adicional](#-documentación-adicional)
 - [⚙️ Versionado](#️-versionado)
 
-## 📖 Propósito del Proyecto
-El Gestor de Tareas - Backend API es una aplicación diseñada para ofrecer un sistema robusto, escalable y mantenible de gestión de usuarios y tareas, con arquitectura modular y soporte completo para operaciones CRUD (Crear, Leer, Actualizar, Eliminar).
+---
 
-🎯 Objetivos principales
-✅ Gestión integral de usuarios y tareas mediante endpoints RESTful claros y consistentes.
+## 📖 Descripción general
 
-✅ Arquitectura por capas con separación de responsabilidades: rutas, controladores, modelos, base de datos y middleware.
+Este proyecto implementa una API backend robusta para la administración de:
 
-✅ Persistencia real en MySQL, con modelos que reflejan fielmente el estado de la base de datos.
+- 👥 Usuarios
+- 📋 Tareas
+- 🛡️ Roles y permisos
 
-✅ Manejo global de errores con middleware centralizado (globalErrorHandler), garantizando respuestas uniformes y predecibles.
+Incluye:
 
-✅ Respuestas estandarizadas gracias a utilidades (successResponse, catchAsync, createError) que mejoran la experiencia de integración con frontend y pruebas en Postman.
-
-✅ Escalabilidad y mantenibilidad: el diseño modular permite añadir nuevas entidades, funcionalidades y validaciones sin romper la estructura existente.
-
-✅ Base sólida para futuras expansiones como autenticación, autorización, documentación con Swagger y despliegue en entornos productivos.
+- Autenticación con **JWT (access + refresh)**
+- Autorización por permisos con **RBAC**
+- Validación de datos con **Zod**
+- Manejo global de errores
+- Respuestas estandarizadas para integración frontend
 
 ---
 
-## 🏗️ Arquitectura por Capas
-**Principio fundamental:** **Arquitectura por capas** con **responsabilidades únicas** y **Separación de Conceptos (SoC)**.
+## ✅ Estado actual del proyecto
 
-**Flujo unidireccional:**
-```
-Cliente → Routes → Controllers → Models → DB (MySQL) → Middleware (errores/respuestas)
-```
+**Versión funcional documentada:** `v1.5.8` (ver `CHANGELOG.md`)
 
-## 🏗️ Arquitectura por Capas
+### Módulos implementados y activos
 
-| Capa           | Función                                      | Estado   |
-|----------------|----------------------------------------------|----------|
-| **Routes**     | Definen los endpoints HTTP (`/api/users`, `/api/tasks`) y delegan la lógica | 🟢 Activo |
-| **Controllers**| Contienen la lógica de negocio, validaciones y manejo de respuestas | 🟢 Activo |
-| **Models/DB**  | Acceso y persistencia de datos en MySQL, reflejando el estado real de la BD | 🟢 Activo |
-| **Middleware** | Manejo global de errores (`globalErrorHandler`), respuestas estandarizadas y utilidades | 🟢 Activo |
-| **Utils**      | Funciones auxiliares (`catchAsync`, `response.handler`, `createError`) para soporte de controladores y middleware | 🟢 Activo |
+- ✅ **Auth** (`/auth`)  
+  Login, refresh y logout con invalidación de sesión.
+- ✅ **Users** (`/users`)  
+  CRUD completo protegido por token y permisos.
+- ✅ **Tasks** (`/tasks`)  
+  CRUD completo protegido por token y permisos.
+- ✅ **Roles** (`/roles`)  
+  CRUD de roles, consulta de permisos y gestión con validación.
+
+### Capacidades de seguridad activas
+
+- ✅ `validateToken` para rutas protegidas
+- ✅ `checkPermission(...)` para autorización granular
+- ✅ invalidación de sesión por `token_version`
+- ✅ errores 401/403 estandarizados
 
 ---
 
-## ✨ Beneficios
+## 🏗️ Arquitectura
 
-- 🔧 **Bajo acoplamiento** → Cada capa tiene responsabilidades únicas, lo que facilita pruebas unitarias y mantenimiento.  
-- ⚡ **Flujo uniforme de errores** → El middleware centraliza el manejo de fallos, garantizando respuestas predecibles y consistentes.  
-- 🔄 **Modularidad** → La arquitectura permite añadir nuevas entidades o funcionalidades sin romper la estructura existente.  
-- 📈 **Escalabilidad** → Preparado para crecer con autenticación, autorización, documentación y despliegue en producción.  
-- 🛡️ **Robustez** → Validaciones claras y manejo de errores operacionales con detalles, mejorando la confiabilidad de la API.  
-- 🤝 **Integración sencilla** → Respuestas estandarizadas (`successResponse`, `errorResponse`) que facilitan la conexión con frontend y pruebas en Postman.  
+### Principio base
+Arquitectura por capas con separación de responsabilidades (SoC):
 
+```text
+Cliente
+  ↓
+Routes
+  ↓
+Middlewares (Auth, RBAC, Validación)
+  ↓
+Controllers
+  ↓
+Models
+  ↓
+DB (MySQL)
+```
 
-## 📁 Estructura del Proyecto
+### Capas del sistema
+
+| Capa | Responsabilidad | Estado |
+|------|------------------|--------|
+| **Routes** | Define endpoints y encadena middlewares | 🟢 Activo |
+| **Middlewares** | Auth JWT, RBAC, validación schema, errores globales | 🟢 Activo |
+| **Controllers** | Lógica de negocio y orquestación de respuesta | 🟢 Activo |
+| **Models** | Acceso a datos y operaciones SQL | 🟢 Activo |
+| **Utils** | Helpers de respuesta, JWT y manejo async | 🟢 Activo |
+| **Schemas** | Contratos de validación (Zod) | 🟢 Activo |
+
+---
+
+## 🧰 Stack tecnológico
+
+- **Node.js** + **Express 5**
+- **MySQL 8** (`mysql2`)
+- **JWT** (`jsonwebtoken`)
+- **Hash de contraseñas** (`bcryptjs`)
+- **Validación** (`zod`)
+- **CORS** + parseo JSON/urlencoded
+- **dotenv** para configuración
+- **nodemon** en desarrollo
+
+---
+
+## 📁 Estructura actual del proyecto
+
 ```text
 Backend/
 ├── .gitignore
 ├── CHANGELOG.md
+├── DOCUMENTATION.md
 ├── package-lock.json
 ├── package.json
 ├── README.md
 ├── sql/
 │   ├── data.sql
-│   ├── database.sql
-│   └── task_manager.sql
+│   └── database.sql
 └── src/
     ├── app.js
     ├── config/
     │   └── db.js
     ├── controllers/
+    │   ├── auth.controller.js
+    │   ├── index.js
+    │   ├── roles.controller.js
     │   ├── tasks.controller.js
     │   └── users.controller.js
     ├── middlewares/
+    │   ├── auth.middleware.js
     │   ├── error.middleware.js
+    │   ├── index.js
+    │   ├── rbac.middleware.js
     │   └── validator.middleware.js
     ├── models/
+    │   ├── index.js
+    │   ├── roles.model.js
     │   ├── tasks.model.js
     │   └── users.model.js
     ├── routes/
+    │   ├── auth.routes.js
+    │   ├── roles.routes.js
     │   ├── tasks.routes.js
     │   └── users.routes.js
     ├── schemas/
+    │   ├── index.js
+    │   ├── roles.schema.js
     │   ├── tasks.schema.js
     │   └── users.schema.js
     └── utils/
         ├── catchAsync.js
+        ├── index.js
+        ├── jwt.handler.js
         └── response.handler.js
 ```
 
-## 🛠️ Instalación & Ejecución
-```bash
-# 📂 Navegar
-cd Backend
+---
 
-# 🛠️ Instalar dependencias
+## 🛠️ Instalación y ejecución
+
+```bash
+# 1) Instalar dependencias
 npm install
 
-# ▶️ Desarrollo
+# 2) Ejecutar en desarrollo
 npm run dev
 
-# 🚀 Producción
+# 3) Ejecutar en producción
 npm start
+```
 
-**URL:** `http://localhost:3000`  ,
+Servidor por defecto:
 
-**Scripts package.json:** `{ "start": "node src/app.js" }`,
+- `http://localhost:3000`
 
-**Scripts package.json:** `{ "dev": "nodemon src/app.js" }`,
+Scripts actuales (`package.json`):
 
-## 📖 API REST Endpoints
-
-### 👥 Usuarios
-| Method   | Endpoint         | Descripción                          |
-|----------|------------------|--------------------------------------|
-| **GET**  | `/users`     | Listar todos los usuarios            |
-| **POST** | `/users`     | Crear nuevo usuario                  |
-| **GET**  | `/users/:id` | Consultar usuario por ID             |
-| **PUT**  | `/users/:id` | Actualizar usuario completo          |
-| **PATCH**| `/users/:id` | Actualización parcial de usuario     |
-| **DELETE**| `/users/:id`| Eliminar usuario                     |
-
-### 📋 Tareas
-| Method   | Endpoint         | Descripción                          |
-|----------|------------------|--------------------------------------|
-| **GET**  | `/tasks`     | Listar todas las tareas              |
-| **POST** | `/tasks`     | Crear nueva tarea                    |
-| **GET**  | `/tasks/:id` | Consultar tarea por ID               |
-| **PUT**  | `/tasks/:id` | Actualizar tarea completa            |
-| **PATCH**| `/tasks/:id` | Actualización parcial de tarea       |
-| **DELETE**| `/tasks/:id`| Eliminar tarea                       |
+- `dev`: `nodemon src/app.js`
+- `start`: `node src/app.js`
 
 ---
 
-### 📌 Notas
-- Todas las respuestas están **estandarizadas** mediante `successResponse` y `errorResponse`.  
-- Los errores son manejados de forma **global** por `globalErrorHandler`.  
-- Los modelos devuelven objetos consistentes con flags (`created`, `updated`, `deleted`) o `null` si el recurso no existe.  
+## 🔐 Variables de entorno
+
+Crear archivo `.env` en la raíz del proyecto con valores equivalentes a:
+
+```env
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=tu_password
+DB_NAME=task_manager
+
+JWT_SECRET=tu_jwt_secret
+JWT_REFRESH_SECRET=tu_jwt_refresh_secret
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+```
+
+> Ajusta nombres exactos según tu implementación en `src/config/db.js` y `src/utils/jwt.handler.js`.
+
+---
+
+## 📡 Endpoints principales
+
+> Todas las rutas (excepto login/refresh) requieren autenticación y, según el caso, permisos RBAC.
+
+### 🔑 Auth (`/auth`)
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/auth/login` | Iniciar sesión y obtener tokens |
+| POST | `/auth/refresh` | Renovar access token |
+| POST | `/auth/logout` | Cerrar sesión (protegido) |
+
+### 👥 Users (`/users`)
+
+| Método | Endpoint | Permiso sugerido |
+|--------|----------|------------------|
+| GET | `/users` | `users.get` |
+| GET | `/users/:id` | `users.get` |
+| POST | `/users` | `users.create` |
+| PUT | `/users/:id` | `users.update` |
+| PATCH | `/users/:id` | `users.update` |
+| DELETE | `/users/:id` | `users.delete` |
+
+### 📋 Tasks (`/tasks`)
+
+| Método | Endpoint | Permiso sugerido |
+|--------|----------|------------------|
+| GET | `/tasks` | `tasks.get` |
+| GET | `/tasks/:id` | `tasks.get` |
+| POST | `/tasks` | `tasks.create` |
+| PUT | `/tasks/:id` | `tasks.update` |
+| PATCH | `/tasks/:id` | `tasks.update` |
+| DELETE | `/tasks/:id` | `tasks.delete` |
+
+### 🛡️ Roles (`/roles`)
+
+| Método | Endpoint | Permiso sugerido |
+|--------|----------|------------------|
+| GET | `/roles` | `roles.get` |
+| GET | `/roles/:id` | `roles.get` |
+| GET | `/roles/:id/permissions` | `roles.get` |
+| POST | `/roles` | `roles.manage` |
+| PUT | `/roles/:id` | `roles.manage` |
+| PATCH | `/roles/:id` | `roles.manage` |
+| DELETE | `/roles/:id` | `roles.manage` |
+| POST | `/roles/manage` | `roles.manage` |
+
+---
+
+## 🧪 Estado para nueva versión estable
+
+### Checklist técnico recomendado
+
+- ✅ Arquitectura modular consolidada
+- ✅ CRUD completo en dominios principales
+- ✅ Seguridad JWT + refresh + logout robusto
+- ✅ RBAC funcional en rutas críticas
+- ✅ Validación de payloads con Zod
+- ✅ Manejo global de errores
+- ✅ Documentación técnica adicional (`DOCUMENTATION.md`)
+- ✅ Historial de cambios mantenido (`CHANGELOG.md`)
+
+
+---
+
+## 📚 Documentación adicional
+
+- `DOCUMENTATION.md` → Documentación funcional detallada por módulos.
+- `CHANGELOG.md` → Historial completo de versiones y cambios.
+
+---
+
+## ⚙️ Versionado
+
+Este repositorio sigue versionado incremental documentado en `CHANGELOG.md`.  
+Estado actual reportado: **v1.5.8**.
