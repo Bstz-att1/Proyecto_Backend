@@ -6,26 +6,46 @@ import {
   updateUserById,
   patchUserById,
   deleteUserById
-} from '../controllers/users.controller.js';
+} from '../controllers/index.js';
+import { validateSchema, validateToken, checkPermission } from '../middlewares/index.js';
+import { userSchema } from '../schemas/index.js';
 
 const router = Router();
 
 // Consultar todos los usuarios
-router.get('/', getUsers);
+router.get('/', validateToken, checkPermission('users.get'), getUsers);
 
 // Consultar un usuario específico
-router.get('/:id', getUserById);
+router.get('/:id', validateToken, checkPermission('users.get'), getUserById);
 
 // Registrar un nuevo usuario
-router.post('/', createUser);
+router.post(
+  '/',
+  validateToken,
+  checkPermission('users.create'),
+  validateSchema(userSchema),
+  createUser
+);
 
 // Actualizar información de un usuario
-router.put('/:id', updateUserById);
+router.put(
+  '/:id',
+  validateToken,
+  checkPermission('users.update'),
+  validateSchema(userSchema),
+  updateUserById
+);
 
 // Actualizar informacion de un usuario parcialmente
-router.patch('/:id', patchUserById);
+router.patch(
+  '/:id',
+  validateToken,
+  checkPermission('users.update'),
+  validateSchema(userSchema.partial()),
+  patchUserById
+);
 
 // Eliminar un usuario
-router.delete('/:id', deleteUserById);
+router.delete('/:id', validateToken, checkPermission('users.delete'), deleteUserById);
 
 export default router;
