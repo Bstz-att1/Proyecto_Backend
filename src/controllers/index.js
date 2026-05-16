@@ -1,5 +1,14 @@
 export { loginJWT, refreshJWT, logout } from './auth.controller.js';
-export { getRoles, getRoleById, manageRole } from './roles.controller.js';
+export {
+  getRoles,
+  getRoleById,
+  getRolePermissionsById,
+  createRole,
+  updateRoleById,
+  patchRoleById,
+  deleteRoleById,
+  manageRole,
+} from './roles.controller.js';
 export {
   getTasks,
   getTaskById,
