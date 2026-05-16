@@ -513,3 +513,27 @@
 ### Notes
 - Estos ajustes se realizaron para alinear completamente el contrato frontend/backend en gestión de usuarios con RBAC.
 - No se introdujeron cambios de rutas; el impacto es interno en capa de modelo/controlador y en consistencia de datos devueltos.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.6.2] - 2026-05-16
+
+### Added
+- Se amplió `docs/DOCUMENTATION.md` con una sección nueva de referencia rápida:
+  - **“Mapa rápido de archivos y parámetros (guía práctica)”**.
+- La nueva sección documenta, en lenguaje de onboarding:
+  - propósito por archivo/capa,
+  - entradas típicas (`req.params`, `req.body`, headers, variables de entorno),
+  - relación funcional entre `routes`, `controllers`, `models`, `middlewares`, `schemas` y `utils`.
+
+### Changed
+- **README.md**
+  - Se actualizó el bloque **Documentación adicional** con enlaces directos y consistentes a:
+    - `docs/DOCUMENTATION.md`
+    - `docs/RBAC.md`
+    - `docs/CHANGELOG.md`
+- Se mejoró la navegabilidad de la documentación para lectura rápida de estructura y responsabilidades del backend.
+
+### Notes
+- Esta versión corresponde únicamente a mejoras de documentación y trazabilidad técnica.
+- No hubo cambios en lógica de negocio, contratos de endpoints ni esquema SQL.
