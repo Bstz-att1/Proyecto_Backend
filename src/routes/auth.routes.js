@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { loginJWT, refreshJWT, logout } from '../controllers/index.js';
+import { validateToken } from '../middlewares/index.js';
 
 const router = Router();
 
@@ -19,6 +20,6 @@ router.post('/refresh', refreshJWT);
  * @route   POST /api/auth/logout
  * @desc    Cerrar sesión y revocar el Refresh Token de la base de datos
  */
-router.post('/logout', logout);
+router.post('/logout', validateToken, logout);
 
 export default router;
