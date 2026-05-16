@@ -3,7 +3,7 @@ import pool from '../config/db.js';
 // Crear una nueva tarea
 export const addTask = async (task) => {
   const [result] = await pool.query(
-    'INSERT INTO tasks (user_id, title, description, status, created_by) VALUES (?, ?, ?, ?, ?)',
+    'INSERT INTO tasks (user_id, title, description, status, created_by_role) VALUES (?, ?, ?, ?, ?)',
     [task.user_id, task.title, task.description, task.status, task.created_by]
   );
 
@@ -28,7 +28,7 @@ export const addTask = async (task) => {
     title: row.title,
     description: row.description,
     status: row.status,
-    created_by: row.created_by,
+    created_by: row.created_by_role,
     created_at: row.created_at,
     updated_at: row.updated_at,
     created: true
@@ -44,7 +44,7 @@ export const getAllTasks = async () => {
     title: row.title,
     description: row.description,
     status: row.status,
-    created_by: row.created_by,
+    created_by: row.created_by_role,
     created_at: row.created_at,
     updated_at: row.updated_at
   }));
@@ -59,7 +59,7 @@ export const getTask = async (id) => {
 // Actualizar completamente una tarea (PUT)
 export const updateTask = async (id, data) => {
   const [result] = await pool.query(
-    'UPDATE tasks SET user_id = ?, title = ?, description = ?, status = ?, created_by = ? WHERE id = ?',
+    'UPDATE tasks SET user_id = ?, title = ?, description = ?, status = ?, created_by_role = ? WHERE id = ?',
     [data.user_id, data.title, data.description, data.status, data.created_by, id]
   );
 
@@ -74,7 +74,7 @@ export const updateTask = async (id, data) => {
     title: row.title,
     description: row.description,
     status: row.status,
-    created_by: row.created_by,
+    created_by: row.created_by_role,
     created_at: row.created_at,
     updated_at: row.updated_at,
     updated: true
@@ -91,11 +91,11 @@ export const patchTask = async (id, data) => {
     title: data.title ?? tarea.title,
     description: data.description ?? tarea.description,
     status: data.status ?? tarea.status,
-    created_by: data.created_by ?? tarea.created_by
+    created_by: data.created_by ?? tarea.created_by_role
   };
 
   const [result] = await pool.query(
-    'UPDATE tasks SET user_id = ?, title = ?, description = ?, status = ?, created_by = ? WHERE id = ?',
+    'UPDATE tasks SET user_id = ?, title = ?, description = ?, status = ?, created_by_role = ? WHERE id = ?',
     [updated.user_id, updated.title, updated.description, updated.status, updated.created_by, id]
   );
 
@@ -110,7 +110,7 @@ export const patchTask = async (id, data) => {
     title: row.title,
     description: row.description,
     status: row.status,
-    created_by: row.created_by,
+    created_by: row.created_by_role,
     created_at: row.created_at,
     updated_at: row.updated_at,
     updated: true

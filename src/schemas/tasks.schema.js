@@ -35,7 +35,8 @@ export const taskSchema = z.object({
       required_error: "El rol es obligatorio",
       invalid_type_error: "El rol debe ser un texto",
     })
-    .refine((val) => ["admin", "user"].includes(val), {
-      message: "Creador invalido: debe ser admin o user",
+    .transform((val) => val.trim().toUpperCase())
+    .refine((val) => ["ADMIN", "SUPERVISOR", "USER"].includes(val), {
+      message: "Creador invalido: debe ser ADMIN, SUPERVISOR o USER",
     }),
 });
