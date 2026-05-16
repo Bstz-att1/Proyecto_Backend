@@ -26,6 +26,19 @@ export const RoleModel = {
   },
 
   /**
+   * Obtiene un rol por su nombre.
+   * @param {string} name - Nombre del rol.
+   * @returns {Promise<{id:number,name:string,description:string|null,created_at:Date}|null>}
+   */
+  findByName: async (name) => {
+    const [rows] = await pool.query(
+      "SELECT id, name, description, created_at FROM roles WHERE name = ?",
+      [name]
+    );
+    return rows[0] || null;
+  },
+
+  /**
    * Obtiene los permisos asignados a un usuario por medio de sus roles.
    * Retorna un array limpio de strings (sin nulos, sin vacíos, sin duplicados).
    * @param {number} userId - ID del usuario.

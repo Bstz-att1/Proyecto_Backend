@@ -1,5 +1,6 @@
+import bcrypt from 'bcryptjs';
 import { successResponse, buildError, catchAsync } from '../utils/index.js';
-import { UserModel } from '../models/index.js';
+import { UserModel, RoleModel } from '../models/index.js';
 
 // Consultar todos los usuarios
 export const getUsers = catchAsync(async (req, res, next) => {
@@ -21,9 +22,24 @@ export const getUserById = catchAsync(async (req, res, next) => {
 
 // Crear un nuevo usuario
 export const createUser = catchAsync(async (req, res, next) => {
-    const { name, email, document } = req.body;
+    const { name, email, document, password, role } = req.body;
 
-    const newUser = await UserModel.create({ name, email, document });
+    const foundRole = await RoleModel.findByName(role);
+
+    if (!foundRole) {
+        return next(buildError("Rol inválido", 400, [`No existe el rol '${role}'`]));
+    }
+
+    const password_hash = await bcrypt.hash(password, 10);
+
+    const newUser = await UserModel.create({
+        name,
+        email,
+        document,
+        password_hash,
+        role_id: foundRole.id
+    });
+
     return successResponse(res, 201, "Usuario creado exitosamente", newUser);
 });
 
