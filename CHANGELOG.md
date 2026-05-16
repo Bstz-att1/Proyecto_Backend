@@ -461,3 +461,24 @@
 
 ### Notes
 - El módulo de roles queda alineado con la arquitectura existente (routes → controllers → models + schemas + middlewares).
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.5.8] - 2026-05-16
+
+### Added
+- Nuevo archivo `DOCUMENTATION.md` con documentación funcional de toda la aplicación backend.
+- Cobertura documental por módulos:
+  - `app`, `config`, `routes`, `controllers`, `models`, `middlewares`, `schemas` y `utils`.
+- Secciones específicas para cada endpoint y cada función principal, describiendo objetivo, flujo y responsabilidad.
+
+### Changed
+- Se incorporó una estructura de documentación técnica centralizada y atómica para facilitar:
+  - onboarding de nuevos desarrolladores,
+  - trazabilidad funcional por archivo,
+  - lectura rápida del flujo request → middleware → controller → model.
+- Se dejó explícita la relación entre contratos de validación (`schemas`) y su aplicación en rutas/middlewares.
+
+### Notes
+- Esta versión no modifica lógica de negocio ni comportamiento de endpoints; corresponde a mejora documental.
+- El archivo está diseñado para consulta directa del código, con foco en claridad funcional y responsabilidad por componente.
