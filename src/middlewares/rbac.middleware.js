@@ -1,5 +1,5 @@
 import { RoleModel } from '../models/index.js';
-import { buildError, catchAsync } from '../utils/index.js';
+import { buildError, buildUnauthorizedError, catchAsync } from '../utils/index.js';
 
 export const checkPermission = (requiredPermission) =>
   catchAsync(async (req, res, next) => {
@@ -7,9 +7,7 @@ export const checkPermission = (requiredPermission) =>
 
     if (!userId) {
       return next(
-        buildError('No autenticado', 401, [
-          'No se encontró información del usuario en la solicitud',
-        ])
+        buildUnauthorizedError('No se encontró información del usuario en la solicitud')
       );
     }
 
