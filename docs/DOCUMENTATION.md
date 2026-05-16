@@ -496,19 +496,189 @@ Alias de `roleUpdateSchema` para uso en PATCH.
 
 ---
 
-## Archivos índice (re-export)
+## Mapa rápido de archivos y parámetros (guía práctica)
 
-### `src/controllers/index.js`
-Centraliza exportación de controladores.
+Esta sección resume **para qué sirve cada archivo** y qué recibe normalmente (parámetros/entradas), para entender la estructura del backend sin entrar en detalle profundo de implementación.
 
-### `src/models/index.js`
-Centraliza exportación de modelos y funciones de tareas.
+### Raíz del backend
 
-### `src/middlewares/index.js`
-Centraliza exportación de middlewares.
+- `package.json`  
+  Define dependencias y scripts (`npm run dev`, `npm start`).
 
-### `src/schemas/index.js`
-Centraliza exportación de schemas.
+- `README.md`  
+  Guía principal de instalación, arquitectura y endpoints.
 
-### `src/utils/index.js`
-Centraliza exportación de utilidades.
+- `docs/CHANGELOG.md`  
+  Historial de versiones y cambios.
+
+- `docs/DOCUMENTATION.md`  
+  Documento técnico de referencia por módulos (este archivo).
+
+- `docs/RBAC.md`  
+  Explica el modelo de permisos y su uso en rutas.
+
+- `sql/database.sql`  
+  Script para crear tablas/relaciones de la base de datos.
+
+- `sql/data.sql`  
+  Datos semilla para pruebas iniciales (roles, permisos, usuarios, etc.).
+
+---
+
+### `src/app.js`
+
+Punto de entrada del servidor Express.
+
+- Qué hace:
+  - Configura middlewares globales (CORS, parseo JSON, etc.).
+  - Monta rutas de auth/users/tasks/roles.
+  - Registra middleware de errores.
+  - Inicia servidor HTTP.
+
+- Entradas típicas:
+  - Variable de entorno `PORT`.
+  - Instancias de routers (`authRoutes`, `userRoutes`, etc.).
+  - Middleware `globalErrorHandler`.
+
+---
+
+### `src/config/db.js`
+
+Configuración de conexión a MySQL (pool).
+
+- Qué hace:
+  - Lee variables de entorno de base de datos.
+  - Crea `pool` reutilizable para consultas.
+  - Verifica conexión inicial.
+
+- Entradas típicas:
+  - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`.
+
+---
+
+### `src/routes/*`
+
+Define endpoints y orden de middlewares.
+
+- `auth.routes.js`  
+  Rutas `/auth/login`, `/auth/refresh`, `/auth/logout`.
+
+- `users.routes.js`  
+  CRUD de `/users` con validación y permisos.
+
+- `tasks.routes.js`  
+  CRUD de `/tasks` con validación y permisos.
+
+- `roles.routes.js`  
+  CRUD y gestión de `/roles`, incluye `/roles/:id/permissions`.
+
+- Entradas típicas en rutas:
+  - `req.params` (por ejemplo `:id`).
+  - `req.body` (payload de creación/actualización).
+  - Middlewares como `validateToken`, `checkPermission('...')`, `validateSchema(schema)`.
+
+---
+
+### `src/controllers/*`
+
+Reciben request/response y orquestan lógica de negocio.
+
+- `auth.controller.js`
+  - `loginJWT(req, res, next)`: espera `document`, `password`.
+  - `refreshJWT(req, res, next)`: espera `refreshToken`.
+  - `logout(req, res, next)`: usa `refreshToken` y/o `req.user.userId`.
+
+- `users.controller.js`
+  - CRUD de usuarios.
+  - Entradas comunes: `req.params.id`, `req.body` con campos de usuario (`name`, `email`, `document`, `password`, `role`).
+
+- `tasks.controller.js`
+  - CRUD de tareas.
+  - Entradas comunes: `req.params.id`, `req.body` con datos de tarea (`title`, `description`, `status`, `user_id`, etc.).
+
+- `roles.controller.js`
+  - CRUD de roles + asignación de permisos.
+  - Entradas comunes: `req.params.id`, `req.body` con `name`, `description`, `permissions[]`.
+
+---
+
+### `src/models/*`
+
+Acceso a datos y consultas SQL.
+
+- `users.model.js` (`UserModel`)
+  - Maneja búsqueda, creación, actualización y sesión de usuarios.
+  - Entradas típicas: `id`, `document`, `refresh_token`, objeto de datos de usuario.
+
+- `tasks.model.js`
+  - Maneja inserción y CRUD de tareas.
+  - Entradas típicas: `id`, objeto `task`/`data`.
+
+- `roles.model.js` (`RoleModel`)
+  - Maneja roles y relación rol-permisos.
+  - Entradas típicas: `id`, `name`, `permissionCodes[]`, objeto de rol.
+
+---
+
+### `src/middlewares/*`
+
+Lógica transversal antes de llegar al controlador.
+
+- `auth.middleware.js`
+  - `validateToken(req, res, next)`
+  - Entrada clave: header `Authorization: Bearer <token>`.
+
+- `rbac.middleware.js`
+  - `checkPermission(requiredPermission)`
+  - Entrada clave: permiso requerido (ej: `users.get`), usuario autenticado en `req.user`.
+
+- `validator.middleware.js`
+  - `validateSchema(schema)`
+  - Entrada clave: schema Zod y `req.body`.
+
+- `error.middleware.js`
+  - `globalErrorHandler(err, req, res, next)`
+  - Entrada clave: error propagado con `next(error)`.
+
+---
+
+### `src/schemas/*`
+
+Contratos de validación (Zod) para payloads HTTP.
+
+- `users.schema.js` → valida estructura de usuario.
+- `tasks.schema.js` → valida estructura de tarea.
+- `roles.schema.js` → valida rol y códigos de permisos.
+
+- Entradas típicas:
+  - Objeto `req.body` a validar.
+  - Campos string/number/enums según cada recurso.
+
+---
+
+### `src/utils/*`
+
+Funciones utilitarias reutilizables.
+
+- `catchAsync.js`
+  - `catchAsync(fn)` recibe una función async y captura errores automáticamente.
+
+- `jwt.handler.js`
+  - `generateToken(payload)` recibe payload de sesión.
+  - `verifyJWT(token, secret)` recibe token y secreto de verificación.
+
+- `response.handler.js`
+  - `successResponse(res, statusCode, message, data)`
+  - `errorResponse(res, statusCode, message, errors)`
+  - `buildError(message, statusCode, details)`
+  - `buildUnauthorizedError(detail)`
+
+---
+
+### Archivos índice (re-export)
+
+- `src/controllers/index.js`: centraliza exportación de controladores.
+- `src/models/index.js`: centraliza exportación de modelos y funciones de tareas.
+- `src/middlewares/index.js`: centraliza exportación de middlewares.
+- `src/schemas/index.js`: centraliza exportación de schemas.
+- `src/utils/index.js`: centraliza exportación de utilidades.
