@@ -379,3 +379,32 @@
 ### Fixed
 - Caso donde, tras ejecutar logout, la sesión podía permanecer activa y permitir acceso a endpoints protegidos.
 - Falta de invalidación efectiva cuando el logout dependía únicamente de encontrar coincidencia por `refreshToken`.
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## [v1.5.6] - 2026-05-16
+
+### Added
+- Se incorporó documentación básica en forma de comentarios funcionales en módulos clave de autenticación y autorización:
+  - `src/controllers/auth.controller.js`
+  - `src/middlewares/rbac.middleware.js`
+  - `src/models/roles.model.js`
+- En el login se añadió retorno explícito de permisos del usuario autenticado en formato descriptivo:
+  - `user.permissions` con estructura `{ code, description }`.
+
+### Changed
+- **src/models/roles.model.js**
+  - `getPermissionsByUserId(userId)` ahora retorna objetos con metadatos del permiso en lugar de solo strings:
+    - antes: `["roles:read", "roles:manage"]`
+    - ahora: `[{ code: "roles:read", description: "..." }, ...]`
+  - Consulta SQL ajustada para traer `p.code` y `p.description`.
+- **src/controllers/auth.controller.js**
+  - `loginJWT` ahora consulta permisos efectivos del usuario con `RoleModel.getPermissionsByUserId(user.id)`.
+  - La respuesta de login incluye permisos junto con los datos del usuario:
+    - `id`, `name`, `email`, `permissions`.
+  - Se añadieron comentarios de guía para `loginJWT`, `refreshJWT` y `logout`.
+- **src/middlewares/rbac.middleware.js**
+  - Se adaptó la validación RBAC para mantener compatibilidad con el nuevo formato de permisos:
+    - extrae códigos con `permissions.map(permission => permission.code)`
+    - valida acceso contra `requiredPermission` usando el arreglo de códigos.
+  - Se conserva `req.user.permissions` con estructura completa para trazabilidad.
